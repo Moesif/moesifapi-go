@@ -63,13 +63,13 @@ rsp := models.EventResponseModel{
 	},
 }
 
-sessiomnToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
-userId := "my_user_id"
+sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
+userId := "end_user_id"
 
 event := models.EventModel{
 	Request:      req,
 	Response:     rsp,
-	SessionToken: &sessiomnToken,
+	SessionToken: &sessionToken,
 	Tags:         nil,
 	UserId:       &userId,
 }
