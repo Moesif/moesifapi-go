@@ -4,7 +4,7 @@ MoesifApi Lib for Golang
 [Source Code on GitHub](https://github.com/moesif/moesifapi-go)
 
 __Check out Moesif's
-[Golang developer documentation](https://www.moesif.com/developer-documentation) to learn more__
+[Golang developer documentation](https://www.moesif.com/developer-documentation/?go) to learn more__
 
 How To Install:
 ===============
