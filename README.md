@@ -1,13 +1,12 @@
-MoesifApi Lib for Golang
-========================
+# MoesifApi Lib for Golang
+
 
 [Source Code on GitHub](https://github.com/moesif/moesifapi-go)
 
-__Check out Moesif's
-[Golang developer documentation](https://www.moesif.com/developer-documentation/?go) to learn more__
+__Check out Moesif's [Developer Documentation](https://www.moesif.com/docs) and [Golang API Reference](https://www.moesif.com/docs/api?go) to learn more__
 
-How To Install:
-===============
+## How To Install:
+
 The code depends on unirest-go http library. Run the following commands:
 
 ```bash
@@ -15,8 +14,7 @@ go get github.com/moesif/moesifapi-go;
 go get github.com/apimatic/unirest-go
 ```
 
-How To Use:
-===========
+## How To Use:
 
 (See examples/api_test.go for usage examples)
 
@@ -78,8 +76,8 @@ result := apiClient.CreateEvent(&event)
 
 ```
 
-How To Test:
-============
+## How To Test:
+
 ```bash
 git clone https://github.com/moesif/moesifapi-go
 cd moesifapi-go/examples
