@@ -34,7 +34,7 @@ type EventModel struct {
  */
 type EventResponseModel struct {
 	Time      *time.Time  `json:"time" form:"time"`                                 //Time when response received
-	Status    int64       `json:"status" form:"status"`                             //HTTP Status code such as 200
+	Status    int         `json:"status" form:"status"`                             //HTTP Status code such as 200
 	Headers   interface{} `json:"headers" form:"headers"`                           //Key/Value map of response headers
 	Body      interface{} `json:"body" form:"body"`                                 //Response body
 	IpAddress *string     `json:"ip_address,omitempty" form:"ip_address,omitempty"` //IP Address from the response, such as the server IP Address
