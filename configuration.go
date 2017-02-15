@@ -1,16 +1,20 @@
 /*
- * moesifapi
- *
-
+ * moesifapi-go
  */
-
 package moesifapi
 
-/** The base Uri for API calls */
-const BASEURI string = "https://api.moesif.net"
+/** Version of this lib */
+const Version string = "2.0.0"
 
-var Config struct {
+/** The base Uri for API calls */
+const BaseURI string = "https://api.moesif.net"
+
+type config struct {
+	QueueSize int
+
 	/** Your Application Id for authentication/authorization */
 	/** Replace the value of ApplicationId with an appropriate value */
-	ApplicationId string
+	MoesifApplicationId string
 }
+
+var Config = config{QueueSize: 256}

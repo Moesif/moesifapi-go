@@ -1,22 +1,22 @@
 /*
- * moesifapi
- *
+ * moesifapi-go
  */
-
 package health
 
-import "github.com/moesif/moesifapi-go/models"
+import (
+	"github.com/moesif/moesifapi-go/models"
+)
 
 /*
- * Interface for the HEALTH_IMPL
+ * Interface for the Client
  */
-type HEALTH interface {
+type Health interface {
 	GetHealthProbe() (*models.StatusModel, error)
 }
 
 /*
- * Factory for the HEALTH interaface returning HEALTH_IMPL
+ * Factory for the Health interaface returning Client
  */
-func NewHEALTH() HEALTH {
-	return &HEALTH_IMPL{}
+func NewHealth() Health {
+	return &Client{}
 }

@@ -1,17 +1,85 @@
+/*
+ * moesifapi-go
+ */
 package moesifapi_test
 
-import "github.com/moesif/moesifapi-go"
-import "github.com/moesif/moesifapi-go/api"
-import "github.com/moesif/moesifapi-go/models"
-import "fmt"
-import "time"
+import (
+	"fmt"
+	"testing"
+	"time"
 
-import "testing"
+	moesifapi "github.com/moesif/moesifapi-go"
+	"github.com/moesif/moesifapi-go/models"
+)
 
 func TestCreateEvent(t *testing.T) {
-	moesifapi.Config.ApplicationId = "eyJhcHAiOiIzNjU6NiIsInZlciI6IjIuMCIsIm9yZyI6IjM1OTo0IiwiaWF0IjoxNDczMzc5MjAwfQ.9WOx3D357PGMxrXzFm3pV3IzJSYNsO4oRudiMI8mQ3Q"
-	apiClient := api.NewAPI()
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
 
+	event := genEvent()
+
+	fmt.Printf("Event.\n%#v", event)
+
+	result := apiClient.CreateEvent(&event)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestCreateEventBatch(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	events := make([]*models.EventModel, 20)
+	for i := 0; i < 20; i++ {
+		e := genEvent()
+		events[i] = &e
+	}
+
+	result := apiClient.CreateEventsBatch(events)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueEvent(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	event := genEvent()
+
+	fmt.Printf("Event.\n%#v", event)
+
+	result := apiClient.QueueEvent(&event)
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueEvents(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	events := make([]*models.EventModel, 5000)
+	for i := 0; i < 5000; i++ {
+		e := genEvent()
+		events[i] = &e
+	}
+
+	result := apiClient.QueueEvents(events)
+
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func genEvent() models.EventModel {
 	reqTime := time.Now().UTC()
 	apiVersion := "1.0"
 	ipAddress := "61.48.220.123"
@@ -35,7 +103,9 @@ func TestCreateEvent(t *testing.T) {
 		Status:    500,
 		IpAddress: nil,
 		Headers: map[string]interface{}{
-			"RspHeader1": "RspHeaderValue1",
+			"RspHeader1":     "RspHeaderValue1",
+			"Content-Type":   "application/json",
+			"Content-Length": "1000",
 		},
 		Body: map[string]interface{}{
 			"Key1": "Value1",
@@ -56,10 +126,5 @@ func TestCreateEvent(t *testing.T) {
 		Tags:         nil,
 		UserId:       &userId,
 	}
-
-	fmt.Printf("Event.\n%#v", event)
-
-	result := apiClient.CreateEvent(&event)
-
-	fmt.Printf("Created Event.\n%#v", result)
+	return event
 }

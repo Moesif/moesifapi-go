@@ -1,8 +1,6 @@
 /*
- * moesifapi
- *
+ * moesifapi-go
  */
-
 package models
 
 import "time"

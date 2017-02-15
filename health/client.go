@@ -1,69 +1,62 @@
 /*
- * moesifapi
- *
+ * moesifapi-go
  */
 package health
 
 import (
 	"encoding/json"
-	"github.com/apimatic/unirest-go"
-	"github.com/moesif/moesifapi-go"
-	"github.com/moesif/moesifapi-go/apihelper"
+	"io/ioutil"
+	"net/http"
+	"time"
+
+	moesifapi "github.com/moesif/moesifapi-go"
 	"github.com/moesif/moesifapi-go/models"
+	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
 
 /*
  * Client structure as interface implementation
  */
-type HEALTH_IMPL struct{}
+type Client struct{}
 
 /**
  * Health Probe
  * @return	Returns the *models.StatusModel response from the API call
  */
-func (me *HEALTH_IMPL) GetHealthProbe() (*models.StatusModel, error) {
-	//the base uri for api requests
-	_queryBuilder := moesifapi.BASEURI
+func (me *Client) GetHealthProbe() (*models.StatusModel, error) {
 
-	//prepare query string for API call
-	_queryBuilder = _queryBuilder + "/health/probe"
+	url := moesifapi.BaseURI + "/health/probe"
 
-	//variable to hold errors
-	var err error = nil
-	//validate and preprocess url
-	_queryBuilder, err = apihelper.CleanUrl(_queryBuilder)
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		//error in url validation or cleaning
 		return nil, err
 	}
 
-	//prepare headers for the outgoing request
-	headers := map[string]interface{}{
-		"accept":                  "application/json",
-		"X-Moesif-Application-Id": moesifapi.Config.ApplicationId,
-	}
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", moesifapi.Config.MoesifApplicationId)
+	req.Header.Set("User-Agent", "moesifapi-go/"+moesifapi.Version)
 
-	//prepare API request
-	_request := unirest.Get(_queryBuilder, headers)
-	//and invoke the API call request to fetch the response
-	_response, err := unirest.AsString(_request)
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+
 	if err != nil {
-		//error in API invocation
 		return nil, err
 	}
 
-	//error handling using HTTP status codes
-	if (_response.Code < 200) || (_response.Code > 206) { //[200,206] = HTTP OK
-		err = apihelper.NewAPIError("HTTP Response Not OK", _response.Code, _response.RawBody)
+	if resp != nil {
+		defer resp.Body.Close()
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		//error detected in status code validation
 		return nil, err
 	}
 
 	//returning the response
 	var retVal *models.StatusModel = &models.StatusModel{}
-	err = json.Unmarshal(_response.RawBody, &retVal)
+	err = json.Unmarshal(body, &retVal)
 
 	if err != nil {
 		//error in parsing
