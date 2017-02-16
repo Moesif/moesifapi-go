@@ -79,6 +79,38 @@ func TestQueueEvents(t *testing.T) {
 	}
 }
 
+func TestCreateBase64Event(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	event := genBase64Event()
+
+	fmt.Printf("Event.\n%#v", event)
+
+	result := apiClient.CreateEvent(&event)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestCreateBase64EventBatch(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	events := make([]*models.EventModel, 20)
+	for i := 0; i < 20; i++ {
+		e := genBase64Event()
+		events[i] = &e
+	}
+
+	result := apiClient.CreateEventsBatch(events)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
 func genEvent() models.EventModel {
 	reqTime := time.Now().UTC()
 	apiVersion := "1.0"
@@ -114,6 +146,54 @@ func genEvent() models.EventModel {
 				"Key3_1": "SomeValue",
 			},
 		},
+	}
+
+	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
+	userId := "end_user_id"
+
+	event := models.EventModel{
+		Request:      req,
+		Response:     rsp,
+		SessionToken: &sessionToken,
+		Tags:         nil,
+		UserId:       &userId,
+	}
+	return event
+}
+
+func genBase64Event() models.EventModel {
+	reqTime := time.Now().UTC()
+	apiVersion := "1.0"
+	ipAddress := "61.48.220.123"
+	transferEncoding := "base64"
+
+	req := models.EventRequestModel{
+		Time:       &reqTime,
+		Uri:        "https://api.acmeinc.com/widgets",
+		Verb:       "GET",
+		ApiVersion: &apiVersion,
+		IpAddress:  &ipAddress,
+		Headers: map[string]interface{}{
+			"ReqHeader1": "ReqHeaderValue1",
+		},
+		Body:             nil,
+		TransferEncoding: &transferEncoding,
+	}
+
+	rspTime := time.Now().UTC().Add(time.Duration(1) * time.Second)
+
+	var rspBody interface{} = "eyJzdGF0dXMiOnRydWUsInJlZ2lvbiI6Indlc3R1cyJ9"
+	rsp := models.EventResponseModel{
+		Time:      &rspTime,
+		Status:    500,
+		IpAddress: nil,
+		Headers: map[string]interface{}{
+			"RspHeader1":     "RspHeaderValue1",
+			"Content-Type":   "application/json",
+			"Content-Length": "1000",
+		},
+		Body:             rspBody,
+		TransferEncoding: &transferEncoding,
 	}
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
