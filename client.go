@@ -160,8 +160,6 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 		defer resp.Body.Close()
 	}
 
-	fmt.Printf("Event.\n%#v", &resp)
-
 	return err
 }
 
