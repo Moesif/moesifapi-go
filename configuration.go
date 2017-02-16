@@ -4,7 +4,7 @@
 package moesifapi
 
 /** Version of this lib */
-const Version string = "2.0.0"
+const Version string = "2.1.0"
 
 /** The base Uri for API calls */
 const BaseURI string = "https://api.moesif.net"

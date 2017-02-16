@@ -5,6 +5,7 @@ package moesifapi
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"time"
 
@@ -89,7 +90,17 @@ func (c *Client) CreateEvent(event *models.EventModel) error {
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err = gz.Write(body); err != nil {
+		return fmt.Errorf("Unable to gzip body.")
+	}
+	if err = gz.Close(); err != nil {
+		return fmt.Errorf("Unable to close gzip writer.")
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
 		return err
 	}
@@ -97,6 +108,7 @@ func (c *Client) CreateEvent(event *models.EventModel) error {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
 	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
 
 	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
 
@@ -122,7 +134,17 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err = gz.Write(body); err != nil {
+		return fmt.Errorf("Unable to gzip body.")
+	}
+	if err = gz.Close(); err != nil {
+		return fmt.Errorf("Unable to close gzip writer.")
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
 		return err
 	}
@@ -130,6 +152,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
 	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
 
 	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
 
