@@ -25,6 +25,7 @@ type Client struct {
 	cancel   func()
 	ctx      context.Context
 	ch       chan []*models.EventModel
+	chUser	 chan []*models.UserModel
 	flush    chan chan struct{}
 	interval time.Duration
 }
@@ -36,6 +37,7 @@ func NewClient() *Client {
 		cancel:   cancel,
 		ctx:      ctx,
 		ch:       make(chan []*models.EventModel, Config.QueueSize),
+		chUser:   make(chan []*models.UserModel, Config.QueueSize),
 		flush:    make(chan chan struct{}),
 		interval: time.Second * 15,
 	}
@@ -69,6 +71,37 @@ func (c *Client) QueueEvent(e *models.EventModel) error {
 func (c *Client) QueueEvents(e []*models.EventModel) error {
 	select {
 	case c.ch <- e:
+		return nil
+	default:
+		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
+	}
+}
+
+
+/**
+ * Queue Single User to be updated
+ * @param    *models.UserModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+func (c *Client) QueueUser(u *models.UserModel) error {
+	users := make([]*models.UserModel, 1)
+	users[0] = u
+	select {
+	case c.chUser <- users:
+		return nil
+	default:
+		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
+	}
+}
+
+/**
+ * Queue multiple Users to be updated
+ * @param    []*models.UserModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+func (c *Client) QueueUsers(u []*models.UserModel) error {
+	select {
+	case c.chUser <- u:
 		return nil
 	default:
 		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
@@ -163,12 +196,108 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 	return err
 }
 
+/**
+ * Update a Single User
+ * @param    *models.UserModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+ func (c *Client) UpdateUser(user *models.UserModel) error {
+	body, err := json.Marshal(&user)
+	if err != nil {
+		return err
+	}
+
+	url := BaseURI + "/v1/users"
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err = gz.Write(body); err != nil {
+		return fmt.Errorf("Unable to gzip body.")
+	}
+	if err = gz.Close(); err != nil {
+		return fmt.Errorf("Unable to close gzip writer.")
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
+	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
+
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	
+	return err
+}
+
+
+/**
+ * Update multiple Users in a single batch (batch size must be less than 250kb)
+ * @param    []*models.UserModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+ func (c *Client) UpdateUsersBatch(users []*models.UserModel) error {
+	body, err := json.Marshal(&users)
+	if err != nil {
+		return err
+	}
+
+	url := BaseURI + "/v1/users/batch"
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err = gz.Write(body); err != nil {
+		return fmt.Errorf("Unable to gzip body.")
+	}
+	if err = gz.Close(); err != nil {
+		return fmt.Errorf("Unable to close gzip writer.")
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
+	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
+
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
+	return err
+}
+
+
 func (c *Client) Flush() {
 	ch := make(chan struct{})
 	defer close(ch)
 
+	chUser := make(chan struct{})
+	defer close(chUser)
+
 	c.flush <- ch
 	<-ch
+
+	c.flush <- chUser
+	<-chUser
 }
 
 func (c *Client) Close() {
@@ -181,7 +310,9 @@ func (c *Client) start() {
 
 	bufferSize := 256
 	buffer := make([]*models.EventModel, bufferSize)
+	bufferUser := make([]*models.UserModel, bufferSize)
 	index := 0
+	indexUser := 0
 
 	for {
 		timer.Reset(c.interval)
@@ -195,6 +326,10 @@ func (c *Client) start() {
 				c.CreateEventsBatch(buffer[0:index])
 				index = 0
 			}
+			if indexUser > 0 {
+				c.UpdateUsersBatch(bufferUser[0:indexUser])
+				indexUser = 0
+			}
 
 		case v := <-c.ch:
 			buffer = append(buffer[:index], append(v, buffer[index:]...)...)
@@ -204,10 +339,22 @@ func (c *Client) start() {
 				index = 0
 			}
 
+		case v := <-c.chUser:
+			bufferUser = append(bufferUser[:indexUser], append(v, bufferUser[indexUser:]...)...)
+			indexUser += len(v)
+			if indexUser >= bufferSize {
+				c.UpdateUsersBatch(bufferUser[0:indexUser])
+				indexUser = 0
+			}
+
 		case v := <-c.flush:
 			if index > 0 {
 				c.CreateEventsBatch(buffer[0:index])
 				index = 0
+			}
+			if indexUser > 0 {
+				c.UpdateUsersBatch(bufferUser[0:indexUser])
+				indexUser = 0
 			}
 			v <- struct{}{}
 		}

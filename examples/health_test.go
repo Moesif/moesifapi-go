@@ -10,7 +10,7 @@ import (
 	"github.com/moesif/moesifapi-go/health"
 )
 
-func TestCreateEvent(t *testing.T) {
+func TestHealth(t *testing.T) {
 	healthClient := health.NewHealth()
 
 	result, err := healthClient.GetHealthProbe()
