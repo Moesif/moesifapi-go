@@ -27,6 +27,20 @@ type API interface {
 	QueueEvents([]*models.EventModel) error
 
 	/**
+	 * Queue Single User to be updated
+	 * @param    *models.UserModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	QueueUser(*models.UserModel) error
+
+	 /**
+	  * Queue multiple Users to be updated
+	  * @param    []*models.UserModel        body     parameter: Required
+	  * @return	Returns the  response from the API call
+	  */
+	QueueUsers([]*models.UserModel) error
+
+	/**
 	 * Add Single API Event Call
 	 * @param    *models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
@@ -39,6 +53,20 @@ type API interface {
 	 * @return	Returns the  response from the API call
 	 */
 	CreateEventsBatch([]*models.EventModel) error
+
+	/**
+	 * Update a Single User
+	 * @param    *models.UserModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	UpdateUser(*models.UserModel) error
+
+	 /**
+	 * Update multiple Users in a single batch (batch size must be less than 250kb)
+	 * @param    []*models.EventModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	UpdateUsersBatch([]*models.UserModel) error
 
 	Flush()
 

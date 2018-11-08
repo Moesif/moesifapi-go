@@ -28,6 +28,7 @@ type EventModel struct {
 	SessionToken *string            `json:"session_token,omitempty" form:"session_token,omitempty"` //End user's auth/session token
 	Tags         *string            `json:"tags,omitempty" form:"tags,omitempty"`                   //comma separated list of tags, see documentation
 	UserId       *string            `json:"user_id,omitempty" form:"user_id,omitempty"`             //End user's user_id string from your app
+	Metadata	 interface{}		`json:"metadata,omitempty" form:"metadata,omitempty"`			//User Metadata
 }
 
 /*
@@ -49,3 +50,15 @@ type StatusModel struct {
 	Status bool   `json:"status" form:"status"` //Status of Call
 	Region string `json:"region" form:"region"` //Location
 }
+
+/*
+ * Structure for the custom type UserModel
+ */
+ type UserModel struct {
+	ModifiedTime	*time.Time   `json:"modified_time" form:"modified_time"` 								//Time when request was made
+	SessionToken    *string      `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
+	IpAddress	    *string      `json:"ip_address,omitempty" form:"ip_address,omitempty"` 					//IP Address of the client if known.
+	UserId    		string       `json:"user_id" form:"user_id"` 											//End user's user_id string from your app
+	UserAgentString *string      `json:"user_agent_string,omitempty" form:"user_agent_string,omitempty"` 	//End user's user agent string
+	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
+ }

@@ -111,6 +111,75 @@ func TestCreateBase64EventBatch(t *testing.T) {
 	}
 }
 
+func TestUpdateUser(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	user := genUser()
+
+	fmt.Printf("User.\n%#v", user)
+
+	result := apiClient.UpdateUser(&user)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestUpdateUserBatch(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	users := make([]*models.UserModel, 1)
+	for i := 0; i < 1; i++ {
+		u := genUser()
+		users[i] = &u
+	}
+
+	fmt.Printf("%v", users)
+
+	result := apiClient.UpdateUsersBatch(users)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueUser(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	user := genUser()
+
+	fmt.Printf("User.\n%#v", user)
+
+	result := apiClient.QueueUser(&user)
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueUsers(t *testing.T) {
+	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	apiClient := moesifapi.NewAPI(appId)
+
+	users := make([]*models.UserModel, 2)
+	for i := 0; i < 2; i++ {
+		u := genUser()
+		users[i] = &u
+	}
+
+	result := apiClient.QueueUsers(users)
+
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
 func genEvent() models.EventModel {
 	reqTime := time.Now().UTC()
 	apiVersion := "1.0"
@@ -150,6 +219,13 @@ func genEvent() models.EventModel {
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
 	userId := "end_user_id"
+	metadata := map[string]interface{}{
+		"Key1": "metadata",
+		"Key2": 12,
+		"Key3": map[string]interface{}{
+			"Key3_1": "SomeValue",
+		},
+	}
 
 	event := models.EventModel{
 		Request:      req,
@@ -157,6 +233,7 @@ func genEvent() models.EventModel {
 		SessionToken: &sessionToken,
 		Tags:         nil,
 		UserId:       &userId,
+		Metadata: 	  &metadata,
 	}
 	return event
 }
@@ -207,4 +284,28 @@ func genBase64Event() models.EventModel {
 		UserId:       &userId,
 	}
 	return event
+}
+
+func genUser() models.UserModel {
+	
+	modifiedTime := time.Now().UTC()
+
+	metadata := map[string]interface{}{
+		"email": "johndoe@acmeinc.com",
+		"Key1": "metadata",
+		"Key2": 42,
+		"Key3": map[string]interface{}{
+			"Key3_1": "SomeValue",
+		},
+	}
+	
+	user := models.UserModel{
+		ModifiedTime: 	  &modifiedTime,
+		SessionToken:     nil,
+		IpAddress:		  nil,
+		UserId:			  "end_user_id",	
+		UserAgentString:  nil,
+		Metadata:		  &metadata,
+	}
+	return user
 }
