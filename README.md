@@ -261,6 +261,8 @@ go get github.com/moesif/moesifapi-go/health;
 ```bash
 git clone https://github.com/moesif/moesifapi-go
 cd moesifapi-go/examples
+# Be sure to edit the examples/api_test.go to change the application id to your real one obtained from Moesif.
+# var applicationId = "Your Application Id"
 go test  -v
 ```
 

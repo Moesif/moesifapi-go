@@ -113,10 +113,10 @@ func (c *Client) QueueUsers(u []*models.UserModel) error {
  * @param    *models.EventModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
-func (c *Client) CreateEvent(event *models.EventModel) error {
+func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
 	body, err := json.Marshal(&event)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	url := BaseURI + "/v1/events"
@@ -127,15 +127,15 @@ func (c *Client) CreateEvent(event *models.EventModel) error {
 	gz := gzip.NewWriter(&buf)
 
 	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
+		return nil, fmt.Errorf("Unable to gzip body.")
 	}
 	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
+		return nil, fmt.Errorf("Unable to close gzip writer.")
 	}
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -149,7 +149,7 @@ func (c *Client) CreateEvent(event *models.EventModel) error {
 		defer resp.Body.Close()
 	}
 
-	return err
+	return resp.Header ,err
 }
 
 /**
@@ -157,10 +157,10 @@ func (c *Client) CreateEvent(event *models.EventModel) error {
  * @param    []*models.EventModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
-func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
+func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, error) {
 	body, err := json.Marshal(&events)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	url := BaseURI + "/v1/events/batch"
@@ -171,15 +171,15 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 	gz := gzip.NewWriter(&buf)
 
 	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
+		return nil, fmt.Errorf("Unable to gzip body.")
 	}
 	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
+		return nil, fmt.Errorf("Unable to close gzip writer.")
 	}
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -193,7 +193,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 		defer resp.Body.Close()
 	}
 
-	return err
+	return resp.Header, err
 }
 
 /**
@@ -283,6 +283,34 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) error {
 	}
 
 	return err
+}
+
+/**
+ * Get Application configuration
+ * @param  nil  parameter: Required
+ * @return	Returns the  response from the API call
+ */
+ func (c *Client) GetAppConfig() (*http.Response, error) {
+
+	url := BaseURI + "/v1/config"
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
+
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 
