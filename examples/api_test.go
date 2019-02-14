@@ -12,23 +12,27 @@ import (
 	"github.com/moesif/moesifapi-go/models"
 )
 
+var applicationId = "Your Application Id"
+
 func TestCreateEvent(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	event := genEvent()
 
 	fmt.Printf("Event.\n%#v", event)
 
-	result := apiClient.CreateEvent(&event)
+	result, err := apiClient.CreateEvent(&event)
 
-	if result != nil {
+	if err != nil {
 		t.Fail()
 	}
+
+	fmt.Printf("Event.\n%#v", result)
 }
 
 func TestCreateEventBatch(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	events := make([]*models.EventModel, 20)
@@ -37,15 +41,17 @@ func TestCreateEventBatch(t *testing.T) {
 		events[i] = &e
 	}
 
-	result := apiClient.CreateEventsBatch(events)
+	result, err := apiClient.CreateEventsBatch(events)
 
-	if result != nil {
+	if err != nil {
 		t.Fail()
 	}
+
+	fmt.Printf("Events Batch.\n%#v", result)
 }
 
 func TestQueueEvent(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	event := genEvent()
@@ -61,7 +67,7 @@ func TestQueueEvent(t *testing.T) {
 }
 
 func TestQueueEvents(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	events := make([]*models.EventModel, 5000)
@@ -80,22 +86,24 @@ func TestQueueEvents(t *testing.T) {
 }
 
 func TestCreateBase64Event(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	event := genBase64Event()
 
 	fmt.Printf("Event.\n%#v", event)
 
-	result := apiClient.CreateEvent(&event)
+	result, err := apiClient.CreateEvent(&event)
 
-	if result != nil {
+	if err != nil {
 		t.Fail()
 	}
+
+	fmt.Printf("Event.\n%#v", result)
 }
 
 func TestCreateBase64EventBatch(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	events := make([]*models.EventModel, 20)
@@ -104,15 +112,17 @@ func TestCreateBase64EventBatch(t *testing.T) {
 		events[i] = &e
 	}
 
-	result := apiClient.CreateEventsBatch(events)
+	result, err := apiClient.CreateEventsBatch(events)
 
-	if result != nil {
+	if err != nil {
 		t.Fail()
 	}
+
+	fmt.Printf("Events Batch.\n%#v", result)
 }
 
 func TestUpdateUser(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	user := genUser()
@@ -127,7 +137,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestUpdateUserBatch(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	users := make([]*models.UserModel, 1)
@@ -146,7 +156,7 @@ func TestUpdateUserBatch(t *testing.T) {
 }
 
 func TestQueueUser(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	user := genUser()
@@ -162,7 +172,7 @@ func TestQueueUser(t *testing.T) {
 }
 
 func TestQueueUsers(t *testing.T) {
-	appId := "eyJhcHAiOiIxMzk6MCIsInZlciI6IjIuMCIsIm9yZyI6IjI2NTowIiwiaWF0IjoxNDg3MDMwNDAwfQ.IaoyV5EHbcBH23EaCZZc5fzzlV1yGmkU7TwykE0viK8"
+	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
 	users := make([]*models.UserModel, 2)
@@ -178,6 +188,21 @@ func TestQueueUsers(t *testing.T) {
 	if result != nil {
 		t.Fail()
 	}
+}
+
+func TestGetAppConfig(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId)
+
+	fmt.Printf(applicationId)
+
+	result, err := apiClient.GetAppConfig()
+
+	if err != nil {
+		t.Fail()
+	}
+
+	fmt.Printf("AppConfig.\n%#v", result)
 }
 
 func genEvent() models.EventModel {

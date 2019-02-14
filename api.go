@@ -5,6 +5,7 @@ package moesifapi
 
 import (
 	"github.com/moesif/moesifapi-go/models"
+	"net/http"
 )
 
 /*
@@ -45,14 +46,14 @@ type API interface {
 	 * @param    *models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
-	CreateEvent(*models.EventModel) error
+	CreateEvent(*models.EventModel) (http.Header, error)
 
 	/**
 	 * Add multiple API Events in a single batch (batch size must be less than 250kb)
 	 * @param    []*models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
-	CreateEventsBatch([]*models.EventModel) error
+	CreateEventsBatch([]*models.EventModel) (http.Header, error)
 
 	/**
 	 * Update a Single User
@@ -67,6 +68,13 @@ type API interface {
 	 * @return	Returns the  response from the API call
 	 */
 	UpdateUsersBatch([]*models.UserModel) error
+
+	 /**
+	 * Get Application configuration
+	 * @param    nil        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	GetAppConfig() (*http.Response, error)
 
 	Flush()
 
