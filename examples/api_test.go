@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"strconv"
 
 	moesifapi "github.com/moesif/moesifapi-go"
 	"github.com/moesif/moesifapi-go/models"
@@ -205,6 +206,75 @@ func TestGetAppConfig(t *testing.T) {
 	fmt.Printf("AppConfig.\n%#v", result)
 }
 
+func TestAddCompany(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId)
+
+	company := genCompany("1")
+
+	fmt.Printf("Company.\n%#v", &company)
+
+	result := apiClient.AddCompany(&company)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestAddCompaniesBatch(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId)
+
+	companies := make([]*models.CompanyModel, 2)
+	for i := 0; i < 2; i++ {
+		c:= genCompany(strconv.Itoa(i))
+		companies[i] = &c
+	}
+
+	fmt.Printf("Companies.\n%#v", companies)
+
+	result := apiClient.AddCompaniesBatch(companies)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueCompany(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId)
+
+	company := genCompany("1")
+
+	fmt.Printf("Company.\n%#v", company)
+
+	result := apiClient.QueueCompany(&company)
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueCompanies(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId)
+
+	companies := make([]*models.CompanyModel, 2)
+	for i := 0; i < 2; i++ {
+		c := genCompany(strconv.Itoa(i))
+		companies[i] = &c
+	}
+
+	result := apiClient.QueueCompanies(companies)
+
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
 func genEvent() models.EventModel {
 	reqTime := time.Now().UTC()
 	apiVersion := "1.0"
@@ -333,4 +403,28 @@ func genUser() models.UserModel {
 		Metadata:		  &metadata,
 	}
 	return user
+}
+
+func genCompany(companyId string) models.CompanyModel {
+	
+	modifiedTime := time.Now().UTC()
+
+	metadata := map[string]interface{}{
+		"email": "johndoe@acmeinc.com",
+		"Key1": "metadata",
+		"Key2": 42,
+		"Key3": map[string]interface{}{
+			"Key3_1": "SomeValue",
+		},
+	}
+	
+	company := models.CompanyModel{
+		ModifiedTime: 	  &modifiedTime,
+		SessionToken:     nil,
+		IpAddress:		  nil,
+		CompanyId:		  companyId,	
+		CompanyDomain:    nil,
+		Metadata:		  &metadata,
+	}
+	return company
 }
