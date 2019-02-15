@@ -42,6 +42,20 @@ type API interface {
 	QueueUsers([]*models.UserModel) error
 
 	/**
+	 * Queue Single Company to be added
+	 * @param    *models.CompanyModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	QueueCompany(*models.CompanyModel) error
+
+	 /**
+	  * Queue multiple companies to be added
+	  * @param    []*models.CompanyModel        body     parameter: Required
+	  * @return	Returns the  response from the API call
+	  */
+	QueueCompanies([]*models.CompanyModel) error
+
+	/**
 	 * Add Single API Event Call
 	 * @param    *models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
@@ -64,7 +78,7 @@ type API interface {
 
 	 /**
 	 * Update multiple Users in a single batch (batch size must be less than 250kb)
-	 * @param    []*models.EventModel        body     parameter: Required
+	 * @param    []*models.UserModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
 	UpdateUsersBatch([]*models.UserModel) error
@@ -75,6 +89,20 @@ type API interface {
 	 * @return	Returns the  response from the API call
 	 */
 	GetAppConfig() (*http.Response, error)
+
+	/**
+	 * Add a Single Company
+	 * @param    *models.CompanyModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	AddCompany(*models.CompanyModel) error
+
+	/**
+	 * Add multiple companies in a single batch (batch size must be less than 250kb)
+	 * @param    []*models.CompanyModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	AddCompaniesBatch([]*models.CompanyModel) error
 
 	Flush()
 

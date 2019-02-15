@@ -62,3 +62,15 @@ type StatusModel struct {
 	UserAgentString *string      `json:"user_agent_string,omitempty" form:"user_agent_string,omitempty"` 	//End user's user agent string
 	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
  }
+
+ /*
+ * Structure for the custom type CompanyModel
+ */
+ type CompanyModel struct {
+	ModifiedTime	*time.Time   `json:"modified_time" form:"modified_time"` 								//Time when request was made
+	SessionToken    *string      `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
+	IpAddress	    *string      `json:"ip_address,omitempty" form:"ip_address,omitempty"` 					//IP Address of the client if known.
+	CompanyId  		string       `json:"company_id" form:"company_id"` 										//Company Id string from your app
+	CompanyDomain   *string      `json:"company_domain,omitempty" form:"company_domain,omitempty"` 			//Company Domain string
+	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
+ }
