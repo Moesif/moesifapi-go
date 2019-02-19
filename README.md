@@ -252,7 +252,7 @@ err := apiClient.UpdateUsersBatch(users)
 ```
 
 
-### Add company
+### Update company
 
 ```go
 import "github.com/moesif/moesifapi-go"
@@ -284,11 +284,11 @@ company := models.CompanyModel{
 // Queue the company
 err := apiClient.QueueCompany(&company)
 
-// Add the company synchronously
-err := apiClient.AddCompany(&company)
+// Update the company synchronously
+err := apiClient.UpdateCompany(&company)
 ```
 
-### Add batches of companies with bulk API
+### Update batches of companies with bulk API
 
 ```go
 import "github.com/moesif/moesifapi-go"
@@ -309,8 +309,8 @@ companies := make([]*models.CompanyModel, 2)
 // Queue the companies
 err := apiClient.QueueCompanies(companies)
 
-// Add the companies synchronously
-err := apiClient.AddCompaniesBatch(companies)
+// Update the companies synchronously
+err := apiClient.UpdateCompaniesBatch(companies)
 ```
 
 ### Health Check

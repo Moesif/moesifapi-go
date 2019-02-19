@@ -214,7 +214,7 @@ func TestAddCompany(t *testing.T) {
 
 	fmt.Printf("Company.\n%#v", &company)
 
-	result := apiClient.AddCompany(&company)
+	result := apiClient.UpdateCompany(&company)
 
 	if result != nil {
 		t.Fail()
@@ -233,7 +233,7 @@ func TestAddCompaniesBatch(t *testing.T) {
 
 	fmt.Printf("Companies.\n%#v", companies)
 
-	result := apiClient.AddCompaniesBatch(companies)
+	result := apiClient.UpdateCompaniesBatch(companies)
 
 	if result != nil {
 		t.Fail()
