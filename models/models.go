@@ -28,6 +28,7 @@ type EventModel struct {
 	SessionToken *string            `json:"session_token,omitempty" form:"session_token,omitempty"` //End user's auth/session token
 	Tags         *string            `json:"tags,omitempty" form:"tags,omitempty"`                   //comma separated list of tags, see documentation
 	UserId       *string            `json:"user_id,omitempty" form:"user_id,omitempty"`             //End user's user_id string from your app
+	CompanyId    *string            `json:"company_id,omitempty" form:"company_id,omitempty"`       //company_id string
 	Metadata	 interface{}		`json:"metadata,omitempty" form:"metadata,omitempty"`			//User Metadata
 }
 
