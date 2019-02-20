@@ -273,13 +273,13 @@ metadata := map[string]interface{}{
 }
 
 company := models.CompanyModel{
-		ModifiedTime: 	  &modifiedTime,
-		SessionToken:     nil,
-		IpAddress:		  nil,
-		CompanyId:		  "1",	
-		CompanyDomain:    nil,
-		Metadata:		  &metadata,
-	}
+	ModifiedTime: 	  &modifiedTime,
+	SessionToken:     nil,
+	IpAddress:		  nil,
+	CompanyId:		  "1",	
+	CompanyDomain:    nil,
+	Metadata:		  &metadata,
+}
 
 // Queue the company
 err := apiClient.QueueCompany(&company)
