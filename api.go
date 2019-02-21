@@ -91,18 +91,18 @@ type API interface {
 	GetAppConfig() (*http.Response, error)
 
 	/**
-	 * Add a Single Company
+	 * Update a Single Company
 	 * @param    *models.CompanyModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
-	AddCompany(*models.CompanyModel) error
+	UpdateCompany(*models.CompanyModel) error
 
 	/**
-	 * Add multiple companies in a single batch (batch size must be less than 250kb)
+	 * Update multiple companies in a single batch (batch size must be less than 250kb)
 	 * @param    []*models.CompanyModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
-	AddCompaniesBatch([]*models.CompanyModel) error
+	UpdateCompaniesBatch([]*models.CompanyModel) error
 
 	Flush()
 

@@ -251,6 +251,68 @@ err := apiClient.UpdateUsersBatch(users)
 
 ```
 
+
+### Update company
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+import "time"
+
+apiClient := moesifapi.NewAPI("my_application_id")
+
+modifiedTime := time.Now().UTC()
+
+metadata := map[string]interface{}{
+	"email": "johndoe@acmeinc.com",
+	"Key1": "metadata",
+	"Key2": 42,
+	"Key3": map[string]interface{}{
+		"Key3_1": "SomeValue",
+	},
+}
+
+company := models.CompanyModel{
+	ModifiedTime: 	  &modifiedTime,
+	SessionToken:     nil,
+	IpAddress:		  nil,
+	CompanyId:		  "1",	
+	CompanyDomain:    nil,
+	Metadata:		  &metadata,
+}
+
+// Queue the company
+err := apiClient.QueueCompany(&company)
+
+// Update the company synchronously
+err := apiClient.UpdateCompany(&company)
+```
+
+### Update batches of companies with bulk API
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+import "time"
+import "strconv"
+
+apiClient := moesifapi.NewAPI("my_application_id")
+
+modifiedTime := time.Now().UTC()
+
+companies := make([]*models.CompanyModel, 2)
+	for i := 0; i < 2; i++ {
+		c:= genCompany(strconv.Itoa(i)) // Generate company model
+		companies[i] = &c
+	}
+
+// Queue the companies
+err := apiClient.QueueCompanies(companies)
+
+// Update the companies synchronously
+err := apiClient.UpdateCompaniesBatch(companies)
+```
+
 ### Health Check
 
 ```bash

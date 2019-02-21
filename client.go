@@ -346,11 +346,11 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 }
 
 /**
- * Add a Single Company
+ * Update a Single Company
  * @param    *models.CompanyModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) AddCompany(company *models.CompanyModel) error {
+ func (c *Client) UpdateCompany(company *models.CompanyModel) error {
 	body, err := json.Marshal(&company)
 	if err != nil {
 		return err
@@ -391,11 +391,11 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 
 
 /**
- * Add multiple companies in a single batch (batch size must be less than 250kb)
+ * Update multiple companies in a single batch (batch size must be less than 250kb)
  * @param    []*models.CompanyModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) AddCompaniesBatch(companies []*models.CompanyModel) error {
+ func (c *Client) UpdateCompaniesBatch(companies []*models.CompanyModel) error {
 	body, err := json.Marshal(&companies)
 	if err != nil {
 		return err
@@ -488,7 +488,7 @@ func (c *Client) start() {
 			}
 
 			if indexCompany > 0 {
-				c.AddCompaniesBatch(bufferCompany[0:indexCompany])
+				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
 				indexCompany = 0
 			}
 
@@ -512,7 +512,7 @@ func (c *Client) start() {
 			bufferCompany = append(bufferCompany[:indexCompany], append(v, bufferCompany[indexCompany:]...)...)
 			indexCompany += len(v)
 			if indexCompany >= bufferSize {
-				c.AddCompaniesBatch(bufferCompany[0:indexCompany])
+				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
 				indexCompany = 0
 			}
 
@@ -526,7 +526,7 @@ func (c *Client) start() {
 				indexUser = 0
 			}
 			if indexCompany > 0 {
-				c.AddCompaniesBatch(bufferCompany[0:indexCompany])
+				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
 				indexCompany = 0
 			}
 			v <- struct{}{}
