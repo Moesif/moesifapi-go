@@ -17,8 +17,16 @@ Async methods are expected to be the common use case
 ## How to install
 Run the following commands:
 
+moesifapi-go can be installed like any other Go library through go get:
+
 ```bash
-go get github.com/moesif/moesifapi-go;
+go get github.com/moesif/moesifapi-go
+```
+
+Or, if you are already using Go Modules, specify a version number as well:
+
+```bash
+go get github.com/moesif/moesifapi-go@v1.0.0
 ```
 
 ## How to use
