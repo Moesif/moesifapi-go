@@ -26,7 +26,7 @@ go get github.com/moesif/moesifapi-go
 Or, if you are already using Go Modules, specify a version number as well:
 
 ```bash
-go get github.com/moesif/moesifapi-go@v1.0.0
+go get github.com/moesif/moesifapi-go@v1.0.1
 ```
 
 ## How to use
@@ -77,7 +77,8 @@ rsp := models.EventResponseModel{
 }
 
 sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
-userId := "end_user_id"
+userId := "my_user_id"
+companyId := "my_company_id"
 metadata := map[string]interface{}{
 		"Key1": "metadata",
 		"Key2": 12,
@@ -148,7 +149,8 @@ rsp := models.EventResponseModel{
 }
 
 sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
-userId := "end_user_id"
+userId := "my_user_id"
+companyId := "my_company_id"
 metadata := map[string]interface{}{
 		"Key1": "metadata",
 		"Key2": 12,
@@ -203,7 +205,8 @@ user := models.UserModel{
 	ModifiedTime: 	  &modifiedTime,
 	SessionToken:     nil,
 	IpAddress:		  nil,
-	UserId:			  "end_user_id",	
+	UserId:			  "12345",	
+	CompanyId: 		  "67890",
 	UserAgentString:  nil,
 	Metadata:		  &metadata,
 }
@@ -240,7 +243,8 @@ user := models.UserModel{
 	ModifiedTime: 	  &modifiedTime,
 	SessionToken:     nil,
 	IpAddress:		  nil,
-	UserId:			  "end_user_id",	
+	UserId:			  "12345",	
+	CompanyId: 		  "67890",	
 	UserAgentString:  nil,
 	Metadata:		  &metadata,
 }
@@ -284,7 +288,7 @@ company := models.CompanyModel{
 	ModifiedTime: 	  &modifiedTime,
 	SessionToken:     nil,
 	IpAddress:		  nil,
-	CompanyId:		  "1",	
+	CompanyId:		  "12345",	
 	CompanyDomain:    nil,
 	Metadata:		  &metadata,
 }
@@ -339,4 +343,4 @@ go test  -v
 
 ## Other integrations
 
-To view more more documentation on integration options, please visit __[the Integration Options Documentation](https://www.moesif.com/docs/getting-started/integration-options/).__
+To view more documentation on integration options, please visit __[the Integration Options Documentation](https://www.moesif.com/docs/getting-started/integration-options/).__

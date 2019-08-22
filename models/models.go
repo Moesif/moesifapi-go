@@ -60,6 +60,7 @@ type StatusModel struct {
 	SessionToken    *string      `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
 	IpAddress	    *string      `json:"ip_address,omitempty" form:"ip_address,omitempty"` 					//IP Address of the client if known.
 	UserId    		string       `json:"user_id" form:"user_id"` 											//End user's user_id string from your app
+	CompanyId		*string      `json:"company_id,omitempty" form:"company_id,omitempty"` 					//CompanyId associated with the user if known
 	UserAgentString *string      `json:"user_agent_string,omitempty" form:"user_agent_string,omitempty"` 	//End user's user agent string
 	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
  }
