@@ -13,7 +13,7 @@ import (
 	"github.com/moesif/moesifapi-go/models"
 )
 
-var applicationId = "Your Application Id"
+var applicationId = "Your Moesif Application Id"
 
 func TestCreateEvent(t *testing.T) {
 	appId := applicationId
@@ -210,7 +210,7 @@ func TestAddCompany(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
-	company := genCompany("1")
+	company := genCompany("12345")
 
 	fmt.Printf("Company.\n%#v", &company)
 
@@ -313,7 +313,8 @@ func genEvent() models.EventModel {
 	}
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
-	userId := "end_user_id"
+	userId := "my_user_id"
+	companyId := "my_company_id"
 	metadata := map[string]interface{}{
 		"Key1": "metadata",
 		"Key2": 12,
@@ -328,6 +329,7 @@ func genEvent() models.EventModel {
 		SessionToken: &sessionToken,
 		Tags:         nil,
 		UserId:       &userId,
+		CompanyId:    &companyId,
 		Metadata: 	  &metadata,
 	}
 	return event
@@ -369,7 +371,8 @@ func genBase64Event() models.EventModel {
 	}
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
-	userId := "end_user_id"
+	userId := "my_user_id"
+	companyId := "my_company_id"
 
 	event := models.EventModel{
 		Request:      req,
@@ -377,6 +380,7 @@ func genBase64Event() models.EventModel {
 		SessionToken: &sessionToken,
 		Tags:         nil,
 		UserId:       &userId,
+		CompanyId:    &companyId,
 	}
 	return event
 }
@@ -393,12 +397,15 @@ func genUser() models.UserModel {
 			"Key3_1": "SomeValue",
 		},
 	}
+
+	companyId := "67890";
 	
 	user := models.UserModel{
 		ModifiedTime: 	  &modifiedTime,
 		SessionToken:     nil,
 		IpAddress:		  nil,
-		UserId:			  "end_user_id",	
+		UserId:			  "12345",	
+		CompanyId: 		  &companyId,
 		UserAgentString:  nil,
 		Metadata:		  &metadata,
 	}
