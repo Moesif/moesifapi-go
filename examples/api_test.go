@@ -206,7 +206,7 @@ func TestGetAppConfig(t *testing.T) {
 	fmt.Printf("AppConfig.\n%#v", result)
 }
 
-func TestAddCompany(t *testing.T) {
+func TestUpdateCompany(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
@@ -221,7 +221,7 @@ func TestAddCompany(t *testing.T) {
 	}
 }
 
-func TestAddCompaniesBatch(t *testing.T) {
+func TestUpdateCompaniesBatch(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId)
 
@@ -398,6 +398,14 @@ func genUser() models.UserModel {
 		},
 	}
 
+	utmSource := "Newsletter"
+	utmMedium := "Email"
+
+	campaign := models.CampaignModel {
+		UtmSource: &utmSource,
+		UtmMedium: &utmMedium, 
+	}
+
 	companyId := "67890";
 	
 	user := models.UserModel{
@@ -408,6 +416,7 @@ func genUser() models.UserModel {
 		CompanyId: 		  &companyId,
 		UserAgentString:  nil,
 		Metadata:		  &metadata,
+		Campaign:		  &campaign,
 	}
 	return user
 }
@@ -424,6 +433,14 @@ func genCompany(companyId string) models.CompanyModel {
 			"Key3_1": "SomeValue",
 		},
 	}
+
+	utmSource := "Adwords"
+	utmMedium := "Twitter"
+
+	campaign := models.CampaignModel {
+		UtmSource: &utmSource,
+		UtmMedium: &utmMedium, 
+	}
 	
 	company := models.CompanyModel{
 		ModifiedTime: 	  &modifiedTime,
@@ -432,6 +449,7 @@ func genCompany(companyId string) models.CompanyModel {
 		CompanyId:		  companyId,	
 		CompanyDomain:    nil,
 		Metadata:		  &metadata,
+		Campaign:		  &campaign,
 	}
 	return company
 }

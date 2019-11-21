@@ -26,7 +26,7 @@ go get github.com/moesif/moesifapi-go
 Or, if you are already using Go Modules, specify a version number as well:
 
 ```bash
-go get github.com/moesif/moesifapi-go@v1.0.1
+go get github.com/moesif/moesifapi-go@v1.0.2
 ```
 
 ## How to use
@@ -201,6 +201,14 @@ metadata := map[string]interface{}{
 	},
 }
 
+utmSource := "Newsletter"
+utmMedium := "Email"
+
+campaign := models.CampaignModel {
+	UtmSource: &utmSource,
+	UtmMedium: &utmMedium, 
+}
+
 user := models.UserModel{
 	ModifiedTime: 	  &modifiedTime,
 	SessionToken:     nil,
@@ -209,6 +217,7 @@ user := models.UserModel{
 	CompanyId: 		  "67890",
 	UserAgentString:  nil,
 	Metadata:		  &metadata,
+	Campaign:		  &campaign,
 }
 
 // Queue the user
@@ -284,6 +293,14 @@ metadata := map[string]interface{}{
 	},
 }
 
+utmSource := "Adwords"
+utmMedium := "Twitter"
+
+campaign := models.CampaignModel {
+	UtmSource: &utmSource,
+	UtmMedium: &utmMedium, 
+}
+
 company := models.CompanyModel{
 	ModifiedTime: 	  &modifiedTime,
 	SessionToken:     nil,
@@ -291,6 +308,7 @@ company := models.CompanyModel{
 	CompanyId:		  "12345",	
 	CompanyDomain:    nil,
 	Metadata:		  &metadata,
+	Campaign:		  &campaign,
 }
 
 // Queue the company

@@ -53,26 +53,42 @@ type StatusModel struct {
 }
 
 /*
+ * Structure for the custom type CampaignModel
+ */
+ type CampaignModel struct {
+	UtmSource			*string   	 `json:"utm_source,omitempty" form:"utm_source,omitempty"` 				//The Utm source
+	UtmMedium    		*string      `json:"utm_medium,omitempty" form:"utm_medium,omitempty"` 				//The Utm Medium
+	UtmCampaign	    	*string      `json:"utm_campaign,omitempty" form:"utm_campaign,omitempty"` 			//The Utm Campaign
+	UtmTerm    			*string      `json:"utm_term,omitempty" form:"utm_term,omitempty"` 					//The Utm Term
+	UtmContent			*string      `json:"utm_content,omitempty" form:"utm_content,omitempty"` 			//The Utm Content
+	Referrer 			*string      `json:"referrer,omitempty" form:"referrer,omitempty"`					//The Referrer
+	ReferringDomain	    *string	 	 `json:"referring_domain,omitempty" form:"referring_domain,omitempty"` 	//The Referring Domain
+	Gclid    			*string      `json:"gclid,omitempty" form:"gclid,omitempty"` 						//The Gclid
+ }
+
+/*
  * Structure for the custom type UserModel
  */
  type UserModel struct {
-	ModifiedTime	*time.Time   `json:"modified_time" form:"modified_time"` 								//Time when request was made
-	SessionToken    *string      `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
-	IpAddress	    *string      `json:"ip_address,omitempty" form:"ip_address,omitempty"` 					//IP Address of the client if known.
-	UserId    		string       `json:"user_id" form:"user_id"` 											//End user's user_id string from your app
-	CompanyId		*string      `json:"company_id,omitempty" form:"company_id,omitempty"` 					//CompanyId associated with the user if known
-	UserAgentString *string      `json:"user_agent_string,omitempty" form:"user_agent_string,omitempty"` 	//End user's user agent string
-	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
+	ModifiedTime	*time.Time     `json:"modified_time" form:"modified_time"` 								//Time when request was made
+	SessionToken    *string        `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
+	IpAddress	    *string        `json:"ip_address,omitempty" form:"ip_address,omitempty"` 				//IP Address of the client if known.
+	UserId    		string         `json:"user_id" form:"user_id"` 											//End user's user_id string from your app
+	CompanyId		*string        `json:"company_id,omitempty" form:"company_id,omitempty"` 				//CompanyId associated with the user if known
+	UserAgentString *string        `json:"user_agent_string,omitempty" form:"user_agent_string,omitempty"` 	//End user's user agent string
+	Metadata	    interface{}	   `json:"metadata,omitempty" form:"metadata,omitempty"` 					//User Metadata
+	Campaign     	*CampaignModel `json:"campaign,omitempty" form:"campaign,omitempty"`           			//The Campaign Object
  }
 
  /*
  * Structure for the custom type CompanyModel
  */
  type CompanyModel struct {
-	ModifiedTime	*time.Time   `json:"modified_time" form:"modified_time"` 								//Time when request was made
-	SessionToken    *string      `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
-	IpAddress	    *string      `json:"ip_address,omitempty" form:"ip_address,omitempty"` 					//IP Address of the client if known.
-	CompanyId  		string       `json:"company_id" form:"company_id"` 										//Company Id string from your app
-	CompanyDomain   *string      `json:"company_domain,omitempty" form:"company_domain,omitempty"` 			//Company Domain string
-	Metadata	    interface{}	 `json:"metadata,omitempty" form:"metadata,omitempty"` 						//User Metadata
+	ModifiedTime	*time.Time     `json:"modified_time" form:"modified_time"` 								//Time when request was made
+	SessionToken    *string        `json:"session_token,omitempty" form:"session_token,omitempty"` 			//End user's auth/session token
+	IpAddress	    *string        `json:"ip_address,omitempty" form:"ip_address,omitempty"` 				//IP Address of the client if known.
+	CompanyId  		string         `json:"company_id" form:"company_id"` 									//Company Id string from your app
+	CompanyDomain   *string        `json:"company_domain,omitempty" form:"company_domain,omitempty"` 		//Company Domain string
+	Metadata	    interface{}	   `json:"metadata,omitempty" form:"metadata,omitempty"` 					//User Metadata
+	Campaign     	*CampaignModel `json:"campaign,omitempty" form:"campaign,omitempty"`           			//The Campaign Object
  }
