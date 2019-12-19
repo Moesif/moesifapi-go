@@ -181,166 +181,213 @@ err := apiClient.CreateEventsBatch(event)
 
 ```
 
-### How To Update User
+## Update a Single User
+
+Create or update a user profile in Moesif.
+The metadata field can be any customer demographic or other info you want to store.
+Only the `UserId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-a-user).
 
 ```go
 import "github.com/moesif/moesifapi-go"
 import "github.com/moesif/moesifapi-go/models"
-import "time"
 
-apiClient := moesifapi.NewAPI("my_application_id")
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
 
-modifiedTime := time.Now().UTC()
-
-metadata := map[string]interface{}{
-	"email": "johndoe@acmeinc.com",
-	"Key1": "metadata",
-	"Key2": 42,
-	"Key3": map[string]interface{}{
-		"Key3_1": "SomeValue",
-	},
-}
-
-utmSource := "Newsletter"
-utmMedium := "Email"
-
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#users for campaign schema
 campaign := models.CampaignModel {
-	UtmSource: &utmSource,
-	UtmMedium: &utmMedium, 
+  UtmSource: "google",
+  UtmMedium: "cpc", 
+  UtmCampaign: "adwords",
+  UtmTerm: "api+tooling",
+  UtmContent: "landing",
 }
 
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "email", "john@acmeinc.com",
+  "first_name", "John",
+  "last_name", "Doe",
+  "title", "Software Engineer",
+  "sales_info", map[string]interface{}{
+      "stage", "Customer",
+      "lifetime_value", 24000,
+      "account_owner", "mary@contoso.com",
+  },
+}
+
+// Only UserId is required
 user := models.UserModel{
-	ModifiedTime: 	  &modifiedTime,
-	SessionToken:     nil,
-	IpAddress:		  nil,
-	UserId:			  "12345",	
-	CompanyId: 		  "67890",
-	UserAgentString:  nil,
-	Metadata:		  &metadata,
-	Campaign:		  &campaign,
+  UserId:  "12345",
+  CompanyId:  "67890", // If set, associate user with a company object
+  Campaign:  &campaign,
+  Metadata:  &metadata,
 }
 
-// Queue the user
+// Queue the user asynchronously
 err := apiClient.QueueUser(&user)
 
 // Update the user synchronously
 err := apiClient.UpdateUser(&user)
-
 ```
 
-### Update batches of users with bulk API
+## Update Users in Batch
+Similar to UpdateUser, but used to update a list of users in one batch. 
+Only the `UserId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-users-in-batch).
 
 ```go
 import "github.com/moesif/moesifapi-go"
 import "github.com/moesif/moesifapi-go/models"
-import "time"
 
-apiClient := moesifapi.NewAPI("my_application_id")
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
 
-modifiedTime := time.Now().UTC()
+// List of Users
+var users []*models.UserModel
 
-metadata := map[string]interface{}{
-	"email": "johndoe@acmeinc.com",
-	"Key1": "metadata",
-	"Key2": 42,
-	"Key3": map[string]interface{}{
-		"Key3_1": "SomeValue",
-	},
-}
-
-user := models.UserModel{
-	ModifiedTime: 	  &modifiedTime,
-	SessionToken:     nil,
-	IpAddress:		  nil,
-	UserId:			  "12345",	
-	CompanyId: 		  "67890",	
-	UserAgentString:  nil,
-	Metadata:		  &metadata,
-}
-
-users := make([]*models.UserModel, 5)
-	for i := 0; i < 5; i++ {
-		u := genUser()
-		users[i] = &u
-	}
-
-// Queue the users
-err := apiClient.QueueUsers(users)
-
-// Update the users synchronously
-err := apiClient.UpdateUsersBatch(users)
-
-```
-
-
-### Update company
-
-```go
-import "github.com/moesif/moesifapi-go"
-import "github.com/moesif/moesifapi-go/models"
-import "time"
-
-apiClient := moesifapi.NewAPI("my_application_id")
-
-modifiedTime := time.Now().UTC()
-
-metadata := map[string]interface{}{
-	"email": "johndoe@acmeinc.com",
-	"Key1": "metadata",
-	"Key2": 42,
-	"Key3": map[string]interface{}{
-		"Key3_1": "SomeValue",
-	},
-}
-
-utmSource := "Adwords"
-utmMedium := "Twitter"
-
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#users for campaign schema
 campaign := models.CampaignModel {
-	UtmSource: &utmSource,
-	UtmMedium: &utmMedium, 
+  UtmSource: "google",
+  UtmMedium: "cpc", 
+  UtmCampaign: "adwords",
+  UtmTerm: "api+tooling",
+  UtmContent: "landing",
 }
 
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "email", "john@acmeinc.com",
+  "first_name", "John",
+  "last_name", "Doe",
+  "title", "Software Engineer",
+  "sales_info", map[string]interface{}{
+      "stage", "Customer",
+      "lifetime_value", 24000,
+      "account_owner", "mary@contoso.com",
+  },
+}
+
+// Only UserId is required
+userA := models.UserModel{
+  UserId:  "12345",
+  CompanyId:  "67890", // If set, associate user with a company object
+  Campaign:  &campaign,
+  Metadata:  &metadata,
+}
+
+users = append(users, &userA)
+
+// Queue the user asynchronously
+err := apiClient.QueueUsers(&users)
+
+// Update the user synchronously
+err := apiClient.UpdateUsersBatch(&users)
+```
+
+## Update a Single Company
+
+Create or update a company profile in Moesif.
+The metadata field can be any company demographic or other info you want to store.
+Only the `CompanyId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-a-company).
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
+
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#update-a-company for campaign schema
+campaign := models.CampaignModel {
+  UtmSource: "google",
+  UtmMedium: "cpc", 
+  UtmCampaign: "adwords",
+  UtmTerm: "api+tooling",
+  UtmContent: "landing",
+}
+
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "org_name", "Acme, Inc",
+  "plan_name", "Free",
+  "deal_stage", "Lead",
+  "mrr", 24000,
+  "demographics", map[string]interface{}{
+      "alexa_ranking", 500000,
+      "employee_count", 47,
+  },
+}
+
+// Prepare company model
 company := models.CompanyModel{
-	ModifiedTime: 	  &modifiedTime,
-	SessionToken:     nil,
-	IpAddress:		  nil,
-	CompanyId:		  "12345",	
-	CompanyDomain:    nil,
-	Metadata:		  &metadata,
-	Campaign:		  &campaign,
+    CompanyId:        "67890",  // The only required field is your company id
+    CompanyDomain:    "acmeinc.com", // If domain is set, Moesif will enrich your profiles with publicly available info 
+    Campaign:         &campaign,
+    Metadata:         &metadata,
 }
 
-// Queue the company
-err := apiClient.QueueCompany(&company)
+// Queue the company asynchronously
+apiClient.QueueCompany(&company)
 
 // Update the company synchronously
 err := apiClient.UpdateCompany(&company)
 ```
 
-### Update batches of companies with bulk API
+## Update Companies in Batch
+
+Similar to updateCompany, but used to update a list of companies in one batch. 
+Only the `CompanyId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-companies-in-batch).
 
 ```go
 import "github.com/moesif/moesifapi-go"
 import "github.com/moesif/moesifapi-go/models"
-import "time"
-import "strconv"
 
-apiClient := moesifapi.NewAPI("my_application_id")
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
 
-modifiedTime := time.Now().UTC()
+// List of Companies
+var companies []*models.CompanyModel
 
-companies := make([]*models.CompanyModel, 2)
-	for i := 0; i < 2; i++ {
-		c:= genCompany(strconv.Itoa(i)) // Generate company model
-		companies[i] = &c
-	}
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#update-a-company for campaign schema
+campaign := models.CampaignModel {
+  UtmSource: "google",
+  UtmMedium: "cpc", 
+  UtmCampaign: "adwords",
+  UtmTerm: "api+tooling",
+  UtmContent: "landing",
+}
 
-// Queue the companies
-err := apiClient.QueueCompanies(companies)
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "org_name", "Acme, Inc",
+  "plan_name", "Free",
+  "deal_stage", "Lead",
+  "mrr", 24000,
+  "demographics", map[string]interface{}{
+      "alexa_ranking", 500000,
+      "employee_count", 47,
+  },
+}
 
-// Update the companies synchronously
-err := apiClient.UpdateCompaniesBatch(companies)
+// Prepare company model
+companyA := models.CompanyModel{
+    CompanyId:        "67890",  // The only required field is your company id
+    CompanyDomain:  "acmeinc.com", // If domain is set, Moesif will enrich your profiles with publicly available info 
+    Campaign:         &campaign,
+    Metadata:           &metadata,
+}
+
+companies = append(companies, &companyA)
+
+// Queue the company asynchronously
+apiClient.QueueCompanies(&companies)
+
+// Update the company synchronously
+err := apiClient.UpdateCompaniesBatch(&companies)
 ```
 
 ### Health Check
