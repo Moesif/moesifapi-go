@@ -30,6 +30,8 @@ type EventModel struct {
 	UserId       *string            `json:"user_id,omitempty" form:"user_id,omitempty"`             //End user's user_id string from your app
 	CompanyId    *string            `json:"company_id,omitempty" form:"company_id,omitempty"`       //company_id string
 	Metadata	 interface{}		`json:"metadata,omitempty" form:"metadata,omitempty"`			//User Metadata
+	Direction    *string            `json:"direction,omitempty" form:"direction,omitempty"`         // Direction of an API call
+	Weight       *int               `json:"weight,omitempty" form:"weight,omitempty"`               // Weight of an API call
 }
 
 /*
