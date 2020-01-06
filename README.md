@@ -88,13 +88,13 @@ metadata := map[string]interface{}{
 	}
 
 event := models.EventModel{
-	Request:      req,
-	Response:     rsp,
-	SessionToken: &sessionToken,
-	Tags:         nil,
+  Request:      req,
+  Response:     rsp,
+  SessionToken: &sessionToken,
+  Tags:         nil,
   UserId:       &userId,
-  CompanyId: 		&companyId,
-	Metadata: 	  &metadata,
+  CompanyId: 	&companyId,
+  Metadata: 	&metadata,
 }
 
 // Queue the events
@@ -161,13 +161,13 @@ metadata := map[string]interface{}{
 	}
 
 event := models.EventModel{
-	Request:      req,
-	Response:     rsp,
-	SessionToken: &sessionToken,
-	Tags:         nil,
+  Request:      req,
+  Response:     rsp,
+  SessionToken: &sessionToken,
+  Tags:         nil,
   UserId:       &userId,
-  CompanyId: 		&companyId,
-	Metadata: 	  &metadata,
+  CompanyId: 	&companyId,
+  Metadata: 	&metadata,
 }
 
 events := make([]*models.EventModel, 20)
