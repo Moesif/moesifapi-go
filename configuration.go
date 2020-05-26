@@ -4,7 +4,7 @@
 package moesifapi
 
 /** Version of this lib */
-const Version string = "1.0.3"
+const Version string = "1.0.4"
 
 /** The base Uri for API calls */
 const BaseURI string = "https://api.moesif.net"
@@ -17,4 +17,4 @@ type config struct {
 	MoesifApplicationId string
 }
 
-var Config = config{QueueSize: 256}
+var Config = config{QueueSize: 25}
