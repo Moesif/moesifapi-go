@@ -26,7 +26,7 @@ go get github.com/moesif/moesifapi-go
 Or, if you are already using Go Modules, specify a version number as well:
 
 ```bash
-go get github.com/moesif/moesifapi-go@v1.0.3
+go get github.com/moesif/moesifapi-go@v1.0.4
 ```
 
 ## How to use

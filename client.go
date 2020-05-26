@@ -41,7 +41,7 @@ func NewClient() *Client {
 		chUser:   make(chan []*models.UserModel, Config.QueueSize),
 		chCompany: make(chan []*models.CompanyModel, Config.QueueSize),
 		flush:    make(chan chan struct{}),
-		interval: time.Second * 15,
+		interval: time.Second * 5,
 	}
 
 	go Client.start()
@@ -462,7 +462,7 @@ func (c *Client) Close() {
 func (c *Client) start() {
 	timer := time.NewTimer(c.interval)
 
-	bufferSize := 256
+	bufferSize := Config.QueueSize
 	buffer := make([]*models.EventModel, bufferSize)
 	bufferUser := make([]*models.UserModel, bufferSize)
 	bufferCompany := make([]*models.CompanyModel, bufferSize)
