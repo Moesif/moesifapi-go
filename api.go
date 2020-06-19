@@ -104,6 +104,8 @@ type API interface {
 	 */
 	UpdateCompaniesBatch([]*models.CompanyModel) error
 
+	GetETag() (string)
+
 	Flush()
 
 	Close()

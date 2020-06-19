@@ -29,6 +29,20 @@ type Client struct {
 	chCompany chan []*models.CompanyModel
 	flush    chan chan struct{}
 	interval time.Duration
+	responseETag string
+}
+
+func (c *Client) GetETag() string {
+	return c.responseETag
+}
+
+/*
+ * Get X-Moesif-Config-Etag from response headers
+ */
+func (c *Client) fetchETagFromHeader(headers http.Header) {	
+	if eTag, ok := headers["X-Moesif-Config-Etag"]; ok {
+		c.responseETag = eTag[0]
+	}
 }
 
 func NewClient() *Client {
@@ -42,6 +56,7 @@ func NewClient() *Client {
 		chCompany: make(chan []*models.CompanyModel, Config.QueueSize),
 		flush:    make(chan chan struct{}),
 		interval: time.Second * 5,
+		responseETag: "",
 	}
 
 	go Client.start()
@@ -181,6 +196,9 @@ func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
 		defer resp.Body.Close()
 	}
 
+	// Fetch X-Moesif-Config-Etag from Response headers
+	c.fetchETagFromHeader(resp.Header)
+
 	return resp.Header ,err
 }
 
@@ -224,6 +242,9 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 	if resp != nil {
 		defer resp.Body.Close()
 	}
+
+	// Fetch X-Moesif-Config-Etag from Response headers
+	c.fetchETagFromHeader(resp.Header)
 
 	return resp.Header, err
 }
