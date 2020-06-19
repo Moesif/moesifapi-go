@@ -40,8 +40,8 @@ func (c *Client) GetETag() string {
  * Get X-Moesif-Config-Etag from response headers
  */
 func (c *Client) fetchETagFromHeader(headers http.Header) {	
-	if er, ok := headers["X-Moesif-Config-Etag"]; ok {
-		c.responseETag = er[0]
+	if eTag, ok := headers["X-Moesif-Config-Etag"]; ok {
+		c.responseETag = eTag[0]
 	}
 }
 
