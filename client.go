@@ -51,11 +51,11 @@ func NewClient() *Client {
 	Client := &Client{
 		cancel:   cancel,
 		ctx:      ctx,
-		ch:       make(chan []*models.EventModel, Config.QueueSize),
-		chUser:   make(chan []*models.UserModel, Config.QueueSize),
-		chCompany: make(chan []*models.CompanyModel, Config.QueueSize),
+		ch:       make(chan []*models.EventModel, Config.EventQueueSize),
+		chUser:   make(chan []*models.UserModel, Config.EventQueueSize),
+		chCompany: make(chan []*models.CompanyModel, Config.EventQueueSize),
 		flush:    make(chan chan struct{}),
-		interval: time.Second * 5,
+		interval: time.Second * time.Duration(Config.TimerWakeupSeconds),
 		responseETag: "",
 	}
 
@@ -156,6 +156,48 @@ func (c *Client) QueueUsers(u []*models.UserModel) error {
 }
 
 /**
+* Log data to Moesif
+* @param    []bytes        body        parameter: Required
+* @param    string         rawPath     parameter: Required
+*/
+
+func (c *Client) SendDataToMoesif(body []byte, rawPath string) () {
+
+	url := Config.BaseURI + rawPath
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err := gz.Write(body); err != nil {
+		_ = fmt.Errorf("Unable to gzip body.")
+		return
+	}
+	if err := gz.Close(); err != nil {
+		_ = fmt.Errorf("Unable to close gzip writer.")
+		return
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
+	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
+	
+	resp, _ := ctxhttp.Do(ctx, http.DefaultClient, req)
+	if resp != nil {
+		defer resp.Body.Close()
+		// Fetch X-Moesif-Config-Etag from Response headers
+		c.fetchETagFromHeader(resp.Header)
+	}
+}
+
+/**
  * Add Single API Event Call
  * @param    *models.EventModel        body     parameter: Required
  * @return	Returns the  response from the API call
@@ -166,41 +208,12 @@ func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
 		return nil, err
 	}
 
-	url := BaseURI + "/v1/events"
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/events")
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return nil, fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return nil, fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
-
-	// Fetch X-Moesif-Config-Etag from Response headers
-	c.fetchETagFromHeader(resp.Header)
-
-	return resp.Header ,err
+	return nil, err
 }
+
 
 /**
  * Add multiple API Events in a single batch (batch size must be less than 250kb)
@@ -208,45 +221,16 @@ func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
  * @return	Returns the  response from the API call
  */
 func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, error) {
+
 	body, err := json.Marshal(&events)
 	if err != nil {
 		return nil, err
 	}
 
-	url := BaseURI + "/v1/events/batch"
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/events/batch")
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return nil, fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return nil, fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
-
-	// Fetch X-Moesif-Config-Etag from Response headers
-	c.fetchETagFromHeader(resp.Header)
-
-	return resp.Header, err
+	return nil, err
 }
 
 /**
@@ -260,36 +244,9 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 		return err
 	}
 
-	url := BaseURI + "/v1/users"
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/users")
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
-	
 	return err
 }
 
@@ -305,35 +262,8 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 		return err
 	}
 
-	url := BaseURI + "/v1/users/batch"
-
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/users/batch")
 
 	return err
 }
@@ -345,7 +275,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
  */
  func (c *Client) GetAppConfig() (*http.Response, error) {
 
-	url := BaseURI + "/v1/config"
+	url := Config.BaseURI + "/v1/config"
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 
@@ -377,35 +307,8 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 		return err
 	}
 
-	url := BaseURI + "/v1/companies"
-
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/companies")
 
 	return err
 }
@@ -422,35 +325,8 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 		return err
 	}
 
-	url := BaseURI + "/v1/companies/batch"
-
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
-
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-
-	if _, err = gz.Write(body); err != nil {
-		return fmt.Errorf("Unable to gzip body.")
-	}
-	if err = gz.Close(); err != nil {
-		return fmt.Errorf("Unable to close gzip writer.")
-	}
-
-	req, err := http.NewRequest("POST", url, &buf)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
-	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
-	req.Header.Set("Content-Encoding", "gzip")
-
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
-
-	if resp != nil {
-		defer resp.Body.Close()
-	}
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/companies/batch")
 
 	return err
 }
@@ -483,7 +359,7 @@ func (c *Client) Close() {
 func (c *Client) start() {
 	timer := time.NewTimer(c.interval)
 
-	bufferSize := Config.QueueSize
+	bufferSize := Config.BatchSize
 	buffer := make([]*models.EventModel, bufferSize)
 	bufferUser := make([]*models.UserModel, bufferSize)
 	bufferCompany := make([]*models.CompanyModel, bufferSize)
@@ -501,53 +377,89 @@ func (c *Client) start() {
 		case <-timer.C:
 			if index > 0 {
 				c.CreateEventsBatch(buffer[0:index])
+				for i := 0; i < index; i++ {
+					buffer[i] = nil
+				}
 				index = 0
 			}
 			if indexUser > 0 {
 				c.UpdateUsersBatch(bufferUser[0:indexUser])
+				for i := 0; i < indexUser; i++ {
+					bufferUser[i] = nil
+				}
 				indexUser = 0
 			}
 
 			if indexCompany > 0 {
 				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
+				for i := 0; i < indexCompany; i++ {
+					bufferCompany[i] = nil
+				}
 				indexCompany = 0
 			}
 
 		case v := <-c.ch:
-			buffer = append(buffer[:index], append(v, buffer[index:]...)...)
-			index += len(v)
-			if index >= bufferSize {
-				c.CreateEventsBatch(buffer[0:index])
-				index = 0
+			for _, event := range v {
+				buffer[index] = event
+				index += 1
+
+				if index >= bufferSize {
+					c.CreateEventsBatch(buffer[0:index])
+					for i := 0; i < index; i++ {
+						buffer[i] = nil
+					}
+					index = 0
+				}
 			}
 
 		case v := <-c.chUser:
-			bufferUser = append(bufferUser[:indexUser], append(v, bufferUser[indexUser:]...)...)
-			indexUser += len(v)
-			if indexUser >= bufferSize {
-				c.UpdateUsersBatch(bufferUser[0:indexUser])
-				indexUser = 0
-			}
+			for _, user := range v {
+				bufferUser[indexUser] = user
+				indexUser += 1
+
+				if indexUser >= bufferSize {
+					c.UpdateUsersBatch(bufferUser[0:indexUser])
+					for i := 0; i < indexUser; i++ {
+						bufferUser[i] = nil
+					}
+					indexUser = 0
+				}
+			}	
 		
 		case v := <-c.chCompany:
-			bufferCompany = append(bufferCompany[:indexCompany], append(v, bufferCompany[indexCompany:]...)...)
-			indexCompany += len(v)
-			if indexCompany >= bufferSize {
-				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
-				indexCompany = 0
+			for _, company := range v {
+				bufferCompany[indexCompany] = company
+				indexCompany += 1
+
+				if indexCompany >= bufferSize {
+					c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
+					for i := 0; i < indexCompany; i++ {
+						bufferCompany[i] = nil
+					}
+					indexCompany = 0
+				}
 			}
 
 		case v := <-c.flush:
 			if index > 0 {
 				c.CreateEventsBatch(buffer[0:index])
+				for i := 0; i < index; i++ {
+					buffer[i] = nil
+				}
 				index = 0
 			}
 			if indexUser > 0 {
 				c.UpdateUsersBatch(bufferUser[0:indexUser])
+				for i := 0; i < indexUser; i++ {
+					bufferUser[i] = nil
+				}
 				indexUser = 0
 			}
 			if indexCompany > 0 {
 				c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
+				for i := 0; i < indexCompany; i++ {
+					bufferCompany[i] = nil
+				}
 				indexCompany = 0
 			}
 			v <- struct{}{}

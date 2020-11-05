@@ -26,7 +26,7 @@ type Client struct{}
  */
 func (me *Client) GetHealthProbe() (*models.StatusModel, error) {
 
-	url := moesifapi.BaseURI + "/health/probe"
+	url := moesifapi.Config.BaseURI + "/health/probe"
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 

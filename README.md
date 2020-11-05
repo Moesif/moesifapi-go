@@ -1,6 +1,6 @@
 # MoesifApi Lib for Golang
 
-Send REST API Events to Moesif for error analysis
+Send REST API Events to Moesif for API analytics and monitoring.
 
 [Source Code on GitHub](https://github.com/moesif/moesifapi-go)
 
@@ -26,7 +26,7 @@ go get github.com/moesif/moesifapi-go
 Or, if you are already using Go Modules, specify a version number as well:
 
 ```bash
-go get github.com/moesif/moesifapi-go@v1.0.5
+go get github.com/moesif/moesifapi-go@v1.0.6
 ```
 
 ## How to use
@@ -40,7 +40,12 @@ import "github.com/moesif/moesifapi-go"
 import "github.com/moesif/moesifapi-go/models"
 import "time"
 
-apiClient := moesifapi.NewAPI("my_application_id")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 reqTime := time.Now().UTC()
 apiVersion := "1.0"
@@ -113,7 +118,12 @@ import "github.com/moesif/moesifapi-go"
 import "github.com/moesif/moesifapi-go/models"
 import "time"
 
-apiClient := moesifapi.NewAPI("my_application_id")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 reqTime := time.Now().UTC()
 apiVersion := "1.0"
@@ -198,7 +208,12 @@ func literalFieldValue(value string) *string {
     return &value
 }
 
-apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 // Campaign object is optional, but useful if you want to track ROI of acquisition channels
 // See https://www.moesif.com/docs/api#users for campaign schema
@@ -251,7 +266,12 @@ func literalFieldValue(value string) *string {
     return &value
 }
 
-apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 // List of Users
 var users []*models.UserModel
@@ -311,7 +331,12 @@ func literalFieldValue(value string) *string {
     return &value
 }
 
-apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 // Campaign object is optional, but useful if you want to track ROI of acquisition channels
 // See https://www.moesif.com/docs/api#update-a-company for campaign schema
@@ -364,7 +389,12 @@ func literalFieldValue(value string) *string {
     return &value
 }
 
-apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID")
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 // List of Companies
 var companies []*models.CompanyModel
@@ -419,7 +449,7 @@ go get github.com/moesif/moesifapi-go/health;
 git clone https://github.com/moesif/moesifapi-go
 cd moesifapi-go/examples
 # Be sure to edit the examples/api_test.go to change the application id to your real one obtained from Moesif.
-# var applicationId = "Your Application Id"
+# var applicationId = "Your Moesif Application Id"
 go test  -v
 ```
 

@@ -4,17 +4,20 @@
 package moesifapi
 
 /** Version of this lib */
-const Version string = "1.0.5"
-
-/** The base Uri for API calls */
-const BaseURI string = "https://api.moesif.net"
+const Version string = "1.0.6"
 
 type config struct {
-	QueueSize int
+	EventQueueSize int
+
+	TimerWakeupSeconds int
+
+	BatchSize int
+
+	BaseURI string
 
 	/** Your Application Id for authentication/authorization */
 	/** Replace the value of ApplicationId with an appropriate value */
 	MoesifApplicationId string
 }
 
-var Config = config{QueueSize: 25}
+var Config = config{}
