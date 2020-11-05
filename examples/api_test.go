@@ -14,10 +14,14 @@ import (
 )
 
 var applicationId = "Your Moesif Application Id"
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int
+var timerWakeupSeconds int
 
 func TestCreateEvent(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	event := genEvent()
 
@@ -34,7 +38,7 @@ func TestCreateEvent(t *testing.T) {
 
 func TestCreateEventBatch(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	events := make([]*models.EventModel, 20)
 	for i := 0; i < 20; i++ {
@@ -53,7 +57,7 @@ func TestCreateEventBatch(t *testing.T) {
 
 func TestQueueEvent(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	event := genEvent()
 
@@ -69,7 +73,7 @@ func TestQueueEvent(t *testing.T) {
 
 func TestQueueEvents(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	events := make([]*models.EventModel, 5000)
 	for i := 0; i < 5000; i++ {
@@ -88,7 +92,7 @@ func TestQueueEvents(t *testing.T) {
 
 func TestCreateBase64Event(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	event := genBase64Event()
 
@@ -105,7 +109,7 @@ func TestCreateBase64Event(t *testing.T) {
 
 func TestCreateBase64EventBatch(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	events := make([]*models.EventModel, 20)
 	for i := 0; i < 20; i++ {
@@ -124,7 +128,7 @@ func TestCreateBase64EventBatch(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	user := genUser()
 
@@ -139,7 +143,7 @@ func TestUpdateUser(t *testing.T) {
 
 func TestUpdateUserBatch(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	users := make([]*models.UserModel, 1)
 	for i := 0; i < 1; i++ {
@@ -158,7 +162,7 @@ func TestUpdateUserBatch(t *testing.T) {
 
 func TestQueueUser(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	user := genUser()
 
@@ -174,7 +178,7 @@ func TestQueueUser(t *testing.T) {
 
 func TestQueueUsers(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	users := make([]*models.UserModel, 2)
 	for i := 0; i < 2; i++ {
@@ -193,7 +197,7 @@ func TestQueueUsers(t *testing.T) {
 
 func TestGetAppConfig(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	fmt.Printf(applicationId)
 
@@ -208,7 +212,7 @@ func TestGetAppConfig(t *testing.T) {
 
 func TestUpdateCompany(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	company := genCompany("12345")
 
@@ -223,7 +227,7 @@ func TestUpdateCompany(t *testing.T) {
 
 func TestUpdateCompaniesBatch(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	companies := make([]*models.CompanyModel, 2)
 	for i := 0; i < 2; i++ {
@@ -242,7 +246,7 @@ func TestUpdateCompaniesBatch(t *testing.T) {
 
 func TestQueueCompany(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	company := genCompany("1")
 
@@ -258,7 +262,7 @@ func TestQueueCompany(t *testing.T) {
 
 func TestQueueCompanies(t *testing.T) {
 	appId := applicationId
-	apiClient := moesifapi.NewAPI(appId)
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
 
 	companies := make([]*models.CompanyModel, 2)
 	for i := 0; i < 2; i++ {

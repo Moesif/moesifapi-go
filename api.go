@@ -114,7 +114,38 @@ type API interface {
 /*
  * Factory for the API interaface returning Client
  */
-func NewAPI(moesifApplicationId string) API {
+func NewAPI(moesifApplicationId string, apiEndpoint *string, eventQueueSize int, batchSize int, timerWakeupSeconds int) API {
 	Config.MoesifApplicationId = moesifApplicationId
+
+	/** Maximum number of events to be store in the queue, defaults to 10K */
+	defaultEventQueueSize := 10000
+	if (eventQueueSize == 0) {
+		eventQueueSize = defaultEventQueueSize
+	}
+
+	/** Maximum number of events to be sent to Moesif in a single batch, defaults to 200 */
+	defaultBatchSize := 200
+	if (batchSize == 0) {
+		batchSize = defaultBatchSize
+	}
+
+	/** Schedule events batch job periodically, defaults to 2 seconds */
+	defaultTimerWakeUpSeconds := 2
+	if (timerWakeupSeconds == 0) {
+		timerWakeupSeconds = defaultTimerWakeUpSeconds
+	}
+
+	/** The base Uri for API calls */
+	defaultAPIEndpoint := "https://api.moesif.net"
+	if (apiEndpoint != nil && *apiEndpoint != "") {
+		defaultAPIEndpoint = *apiEndpoint
+	}
+
+	/** Config Options */
+	Config.BaseURI = defaultAPIEndpoint
+	Config.EventQueueSize = eventQueueSize
+	Config.BatchSize = batchSize
+	Config.TimerWakeupSeconds = timerWakeupSeconds
+
 	return NewClient()
 }
