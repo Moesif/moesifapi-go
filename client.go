@@ -415,7 +415,7 @@ func (c *Client) start() {
 		case v := <-c.chUser:
 			for _, user := range v {
 				bufferUser[indexUser] = user
-				index += 1
+				indexUser += 1
 
 				if indexUser >= bufferSize {
 					c.UpdateUsersBatch(bufferUser[0:indexUser])
@@ -429,7 +429,7 @@ func (c *Client) start() {
 		case v := <-c.chCompany:
 			for _, company := range v {
 				bufferCompany[indexCompany] = company
-				index += 1
+				indexCompany += 1
 
 				if indexCompany >= bufferSize {
 					c.UpdateCompaniesBatch(bufferCompany[0:indexCompany])
