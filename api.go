@@ -4,8 +4,9 @@
 package moesifapi
 
 import (
-	"github.com/moesif/moesifapi-go/models"
 	"net/http"
+
+	"github.com/moesif/moesifapi-go/models"
 )
 
 /*
@@ -34,11 +35,11 @@ type API interface {
 	 */
 	QueueUser(*models.UserModel) error
 
-	 /**
-	  * Queue multiple Users to be updated
-	  * @param    []*models.UserModel        body     parameter: Required
-	  * @return	Returns the  response from the API call
-	  */
+	/**
+	 * Queue multiple Users to be updated
+	 * @param    []*models.UserModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
 	QueueUsers([]*models.UserModel) error
 
 	/**
@@ -48,11 +49,11 @@ type API interface {
 	 */
 	QueueCompany(*models.CompanyModel) error
 
-	 /**
-	  * Queue multiple companies to be added
-	  * @param    []*models.CompanyModel        body     parameter: Required
-	  * @return	Returns the  response from the API call
-	  */
+	/**
+	 * Queue multiple companies to be added
+	 * @param    []*models.CompanyModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
 	QueueCompanies([]*models.CompanyModel) error
 
 	/**
@@ -76,14 +77,14 @@ type API interface {
 	 */
 	UpdateUser(*models.UserModel) error
 
-	 /**
+	/**
 	 * Update multiple Users in a single batch (batch size must be less than 250kb)
 	 * @param    []*models.UserModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
 	 */
 	UpdateUsersBatch([]*models.UserModel) error
 
-	 /**
+	/**
 	 * Get Application configuration
 	 * @param    nil        body     parameter: Required
 	 * @return	Returns the  response from the API call
@@ -104,7 +105,12 @@ type API interface {
 	 */
 	UpdateCompaniesBatch([]*models.CompanyModel) error
 
-	GetETag() (string)
+	// GetGovernanceRules gets the collector's /v1/rules endpoint which contains
+	// regex governance rules and user/company governance rule templates which are
+	// templated with individual user and company info from the /v1/config endpoint
+	GetGovernanceRules() (GovernanceRulesResponse, error)
+
+	GetETag() string
 
 	Flush()
 
@@ -119,25 +125,25 @@ func NewAPI(moesifApplicationId string, apiEndpoint *string, eventQueueSize int,
 
 	/** Maximum number of events to be store in the queue, defaults to 10K */
 	defaultEventQueueSize := 10000
-	if (eventQueueSize == 0) {
+	if eventQueueSize == 0 {
 		eventQueueSize = defaultEventQueueSize
 	}
 
 	/** Maximum number of events to be sent to Moesif in a single batch, defaults to 200 */
 	defaultBatchSize := 200
-	if (batchSize == 0) {
+	if batchSize == 0 {
 		batchSize = defaultBatchSize
 	}
 
 	/** Schedule events batch job periodically, defaults to 2 seconds */
 	defaultTimerWakeUpSeconds := 2
-	if (timerWakeupSeconds == 0) {
+	if timerWakeupSeconds == 0 {
 		timerWakeupSeconds = defaultTimerWakeUpSeconds
 	}
 
 	/** The base Uri for API calls */
 	defaultAPIEndpoint := "https://api.moesif.net"
-	if (apiEndpoint != nil && *apiEndpoint != "") {
+	if apiEndpoint != nil && *apiEndpoint != "" {
 		defaultAPIEndpoint = *apiEndpoint
 	}
 

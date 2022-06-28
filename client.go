@@ -22,14 +22,16 @@ import (
  * Client structure as interface implementation
  */
 type Client struct {
-	cancel   func()
-	ctx      context.Context
-	ch       chan []*models.EventModel
-	chUser	 chan []*models.UserModel
-	chCompany chan []*models.CompanyModel
-	flush    chan chan struct{}
-	interval time.Duration
+	cancel       func()
+	ctx          context.Context
+	ch           chan []*models.EventModel
+	chUser       chan []*models.UserModel
+	chCompany    chan []*models.CompanyModel
+	flush        chan chan struct{}
+	interval     time.Duration
+	timeout      time.Duration
 	responseETag string
+	rulesETag    string
 }
 
 func (c *Client) GetETag() string {
@@ -39,9 +41,12 @@ func (c *Client) GetETag() string {
 /*
  * Get X-Moesif-Config-Etag from response headers
  */
-func (c *Client) fetchETagFromHeader(headers http.Header) {	
+func (c *Client) fetchETagFromHeader(headers http.Header) {
 	if eTag, ok := headers["X-Moesif-Config-Etag"]; ok {
 		c.responseETag = eTag[0]
+	}
+	if eTag, ok := headers["X-Moesif-Rules-Tag"]; ok {
+		c.rulesETag = eTag[0]
 	}
 }
 
@@ -49,13 +54,14 @@ func NewClient() *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	Client := &Client{
-		cancel:   cancel,
-		ctx:      ctx,
-		ch:       make(chan []*models.EventModel, Config.EventQueueSize),
-		chUser:   make(chan []*models.UserModel, Config.EventQueueSize),
-		chCompany: make(chan []*models.CompanyModel, Config.EventQueueSize),
-		flush:    make(chan chan struct{}),
-		interval: time.Second * time.Duration(Config.TimerWakeupSeconds),
+		cancel:       cancel,
+		ctx:          ctx,
+		ch:           make(chan []*models.EventModel, Config.EventQueueSize),
+		chUser:       make(chan []*models.UserModel, Config.EventQueueSize),
+		chCompany:    make(chan []*models.CompanyModel, Config.EventQueueSize),
+		flush:        make(chan chan struct{}),
+		interval:     time.Second * time.Duration(Config.TimerWakeupSeconds),
+		timeout:      time.Second * 10,
 		responseETag: "",
 	}
 
@@ -94,7 +100,6 @@ func (c *Client) QueueEvents(e []*models.EventModel) error {
 	}
 }
 
-
 /**
  * Queue Single User to be updated
  * @param    *models.UserModel        body     parameter: Required
@@ -130,7 +135,7 @@ func (c *Client) QueueUsers(u []*models.UserModel) error {
  * @param    *models.CompanyModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) QueueCompany(u *models.CompanyModel) error {
+func (c *Client) QueueCompany(u *models.CompanyModel) error {
 	companies := make([]*models.CompanyModel, 1)
 	companies[0] = u
 	select {
@@ -146,7 +151,7 @@ func (c *Client) QueueUsers(u []*models.UserModel) error {
  * @param    []*models.UserModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) QueueCompanies(u []*models.CompanyModel) error {
+func (c *Client) QueueCompanies(u []*models.CompanyModel) error {
 	select {
 	case c.chCompany <- u:
 		return nil
@@ -159,9 +164,9 @@ func (c *Client) QueueUsers(u []*models.UserModel) error {
 * Log data to Moesif
 * @param    []bytes        body        parameter: Required
 * @param    string         rawPath     parameter: Required
-*/
+ */
 
-func (c *Client) SendDataToMoesif(body []byte, rawPath string) () {
+func (c *Client) SendDataToMoesif(body []byte, rawPath string) {
 
 	url := Config.BaseURI + rawPath
 
@@ -188,7 +193,7 @@ func (c *Client) SendDataToMoesif(body []byte, rawPath string) () {
 	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
 	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
 	req.Header.Set("Content-Encoding", "gzip")
-	
+
 	resp, _ := ctxhttp.Do(ctx, http.DefaultClient, req)
 	if resp != nil {
 		defer resp.Body.Close()
@@ -214,7 +219,6 @@ func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
 	return nil, err
 }
 
-
 /**
  * Add multiple API Events in a single batch (batch size must be less than 250kb)
  * @param    []*models.EventModel        body     parameter: Required
@@ -238,7 +242,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
  * @param    *models.UserModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) UpdateUser(user *models.UserModel) error {
+func (c *Client) UpdateUser(user *models.UserModel) error {
 	body, err := json.Marshal(&user)
 	if err != nil {
 		return err
@@ -250,13 +254,12 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 	return err
 }
 
-
 /**
  * Update multiple Users in a single batch (batch size must be less than 250kb)
  * @param    []*models.UserModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) UpdateUsersBatch(users []*models.UserModel) error {
+func (c *Client) UpdateUsersBatch(users []*models.UserModel) error {
 	body, err := json.Marshal(&users)
 	if err != nil {
 		return err
@@ -273,13 +276,13 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
  * @param  nil  parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) GetAppConfig() (*http.Response, error) {
+func (c *Client) GetAppConfig() (*http.Response, error) {
 
 	url := Config.BaseURI + "/v1/config"
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, _ := context.WithTimeout(c.ctx, time.Second*10)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +290,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
 
-	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return nil, err
@@ -301,7 +304,7 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
  * @param    *models.CompanyModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) UpdateCompany(company *models.CompanyModel) error {
+func (c *Client) UpdateCompany(company *models.CompanyModel) error {
 	body, err := json.Marshal(&company)
 	if err != nil {
 		return err
@@ -313,13 +316,12 @@ func (c *Client) CreateEventsBatch(events []*models.EventModel) (http.Header, er
 	return err
 }
 
-
 /**
  * Update multiple companies in a single batch (batch size must be less than 250kb)
  * @param    []*models.CompanyModel        body     parameter: Required
  * @return	Returns the  response from the API call
  */
- func (c *Client) UpdateCompaniesBatch(companies []*models.CompanyModel) error {
+func (c *Client) UpdateCompaniesBatch(companies []*models.CompanyModel) error {
 	body, err := json.Marshal(&companies)
 	if err != nil {
 		return err
@@ -424,8 +426,8 @@ func (c *Client) start() {
 					}
 					indexUser = 0
 				}
-			}	
-		
+			}
+
 		case v := <-c.chCompany:
 			for _, company := range v {
 				bufferCompany[indexCompany] = company
