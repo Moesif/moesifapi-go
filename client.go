@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/moesif/moesifapi-go/models"
@@ -22,47 +23,30 @@ import (
  * Client structure as interface implementation
  */
 type Client struct {
-	cancel       func()
-	ctx          context.Context
-	ch           chan []*models.EventModel
-	chUser       chan []*models.UserModel
-	chCompany    chan []*models.CompanyModel
-	flush        chan chan struct{}
-	interval     time.Duration
-	timeout      time.Duration
-	responseETag string
-	rulesETag    string
-}
-
-func (c *Client) GetETag() string {
-	return c.responseETag
-}
-
-/*
- * Get X-Moesif-Config-Etag from response headers
- */
-func (c *Client) fetchETagFromHeader(headers http.Header) {
-	if eTag, ok := headers["X-Moesif-Config-Etag"]; ok {
-		c.responseETag = eTag[0]
-	}
-	if eTag, ok := headers["X-Moesif-Rules-Tag"]; ok {
-		c.rulesETag = eTag[0]
-	}
+	cancel               func()
+	ctx                  context.Context
+	ch                   chan []*models.EventModel
+	chUser               chan []*models.UserModel
+	chCompany            chan []*models.CompanyModel
+	flush                chan chan struct{}
+	interval             time.Duration
+	timeout              time.Duration
+	eventHeaderCallbacks map[string]func(string)
 }
 
 func NewClient() *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	Client := &Client{
-		cancel:       cancel,
-		ctx:          ctx,
-		ch:           make(chan []*models.EventModel, Config.EventQueueSize),
-		chUser:       make(chan []*models.UserModel, Config.EventQueueSize),
-		chCompany:    make(chan []*models.CompanyModel, Config.EventQueueSize),
-		flush:        make(chan chan struct{}),
-		interval:     time.Second * time.Duration(Config.TimerWakeupSeconds),
-		timeout:      time.Second * 10,
-		responseETag: "",
+		cancel:               cancel,
+		ctx:                  ctx,
+		ch:                   make(chan []*models.EventModel, Config.EventQueueSize),
+		chUser:               make(chan []*models.UserModel, Config.EventQueueSize),
+		chCompany:            make(chan []*models.CompanyModel, Config.EventQueueSize),
+		flush:                make(chan chan struct{}),
+		interval:             time.Second * time.Duration(Config.TimerWakeupSeconds),
+		timeout:              time.Second * 10,
+		eventHeaderCallbacks: make(map[string]func(string)),
 	}
 
 	go Client.start()
@@ -194,12 +178,13 @@ func (c *Client) SendDataToMoesif(body []byte, rawPath string) {
 	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
 	req.Header.Set("Content-Encoding", "gzip")
 
-	resp, _ := ctxhttp.Do(ctx, http.DefaultClient, req)
-	if resp != nil {
-		defer resp.Body.Close()
-		// Fetch X-Moesif-Config-Etag from Response headers
-		c.fetchETagFromHeader(resp.Header)
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+	if err != nil {
+		log.Printf("Moesif API request error: path=%s error=%v ", rawPath, err)
+		return
 	}
+	resp.Body.Close()
+	c.notify(resp.Header)
 }
 
 /**
@@ -465,6 +450,23 @@ func (c *Client) start() {
 				indexCompany = 0
 			}
 			v <- struct{}{}
+		}
+	}
+}
+
+// SetEventsHeaderCallback takes a response header name and callback function
+// on SendDataToMoesif, the callback headers are read from the response and
+// passed to the callback functions
+func (c *Client) SetEventsHeaderCallback(header string, callback func(string)) {
+	c.eventHeaderCallbacks[header] = callback
+}
+
+// notify iterates over event header callbacks, looks up the header value, and calls back
+// if a non empty value is found
+func (c *Client) notify(headers http.Header) {
+	for header, callback := range c.eventHeaderCallbacks {
+		if h := headers.Get(header); h != "" {
+			callback(h)
 		}
 	}
 }

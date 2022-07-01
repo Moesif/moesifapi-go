@@ -110,7 +110,9 @@ type API interface {
 	// templated with individual user and company info from the /v1/config endpoint
 	GetGovernanceRules() (GovernanceRulesResponse, error)
 
-	GetETag() string
+	// SetEventsHeaderCallback sets a Moesif API response header value and callback
+	// function which is called with
+	SetEventsHeaderCallback(string, func(string))
 
 	Flush()
 
