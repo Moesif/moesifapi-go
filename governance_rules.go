@@ -18,10 +18,12 @@ type GovernanceRulesResponse struct {
 // implement support for regex AND user/company cohort.  Logically both conditions must be true
 // also make example of regex with OR/AND conditions between expressions
 type GovernanceRule struct {
-	ID    string `json:"_id"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Block bool   `json:"block"`
+	ID                string `json:"_id"`
+	Name              string `json:"name"`
+	Type              string `json:"type"`
+	Block             bool   `json:"block"`
+	ApplyTo           string `json:"applied_to"`              // "matching" or "not_matching"
+	UnidentifiedUsers bool   `json:"applied_to_unidentified"` // true if rule applies to unidentified users
 	// RegexConfigOr is a boolean expression tree with a fixed depth of two,
 	// a slice of slices of regex patterns.  The regex rule as a whole is a match,
 	// evals to true, if one OR more of the top level slice items is true.
