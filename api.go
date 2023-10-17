@@ -125,8 +125,8 @@ type API interface {
 func NewAPI(moesifApplicationId string, apiEndpoint *string, eventQueueSize int, batchSize int, timerWakeupSeconds int) API {
 	Config.MoesifApplicationId = moesifApplicationId
 
-	/** Maximum number of events to be store in the queue, defaults to 10K */
-	defaultEventQueueSize := 10000
+	/** Maximum number of events to be store in the queue, defaults to 1 million */
+	defaultEventQueueSize := 1000000
 	if eventQueueSize == 0 {
 		eventQueueSize = defaultEventQueueSize
 	}
