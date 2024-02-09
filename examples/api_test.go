@@ -5,9 +5,9 @@ package moesifapi_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
-	"strconv"
 
 	moesifapi "github.com/moesif/moesifapi-go"
 	"github.com/moesif/moesifapi-go/models"
@@ -231,7 +231,7 @@ func TestUpdateCompaniesBatch(t *testing.T) {
 
 	companies := make([]*models.CompanyModel, 2)
 	for i := 0; i < 2; i++ {
-		c:= genCompany(strconv.Itoa(i))
+		c := genCompany(strconv.Itoa(i))
 		companies[i] = &c
 	}
 
@@ -284,6 +284,7 @@ func genEvent() models.EventModel {
 	apiVersion := "1.0"
 	ipAddress := "61.48.220.123"
 
+	reqLength := int64(0)
 	req := models.EventRequestModel{
 		Time:       &reqTime,
 		Uri:        "https://api.acmeinc.com/widgets",
@@ -293,11 +294,13 @@ func genEvent() models.EventModel {
 		Headers: map[string]interface{}{
 			"ReqHeader1": "ReqHeaderValue1",
 		},
-		Body: nil,
+		Body:          nil,
+		ContentLength: &reqLength,
 	}
 
 	rspTime := time.Now().UTC().Add(time.Duration(1) * time.Second)
 
+	rspLength := int64(1000)
 	rsp := models.EventResponseModel{
 		Time:      &rspTime,
 		Status:    500,
@@ -314,6 +317,7 @@ func genEvent() models.EventModel {
 				"Key3_1": "SomeValue",
 			},
 		},
+		ContentLength: &rspLength,
 	}
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
@@ -334,7 +338,7 @@ func genEvent() models.EventModel {
 		Tags:         nil,
 		UserId:       &userId,
 		CompanyId:    &companyId,
-		Metadata: 	  &metadata,
+		Metadata:     &metadata,
 	}
 	return event
 }
@@ -361,6 +365,7 @@ func genBase64Event() models.EventModel {
 	rspTime := time.Now().UTC().Add(time.Duration(1) * time.Second)
 
 	var rspBody interface{} = "eyJzdGF0dXMiOnRydWUsInJlZ2lvbiI6Indlc3R1cyJ9"
+	rspLength := int64(len(rspBody.(string)))
 	rsp := models.EventResponseModel{
 		Time:      &rspTime,
 		Status:    500,
@@ -372,6 +377,7 @@ func genBase64Event() models.EventModel {
 		},
 		Body:             rspBody,
 		TransferEncoding: &transferEncoding,
+		ContentLength:    &rspLength,
 	}
 
 	sessionToken := "23jdf0owekfmcn4u3qypxg09w4d8ayrcdx8nu2ng]s98y18cx98q3yhwmnhcfx43f"
@@ -390,13 +396,13 @@ func genBase64Event() models.EventModel {
 }
 
 func genUser() models.UserModel {
-	
+
 	modifiedTime := time.Now().UTC()
 
 	metadata := map[string]interface{}{
 		"email": "johndoe@acmeinc.com",
-		"Key1": "metadata",
-		"Key2": 42,
+		"Key1":  "metadata",
+		"Key2":  42,
 		"Key3": map[string]interface{}{
 			"Key3_1": "SomeValue",
 		},
@@ -405,34 +411,34 @@ func genUser() models.UserModel {
 	utmSource := "Newsletter"
 	utmMedium := "Email"
 
-	campaign := models.CampaignModel {
+	campaign := models.CampaignModel{
 		UtmSource: &utmSource,
-		UtmMedium: &utmMedium, 
+		UtmMedium: &utmMedium,
 	}
 
-	companyId := "67890";
-	
+	companyId := "67890"
+
 	user := models.UserModel{
-		ModifiedTime: 	  &modifiedTime,
-		SessionToken:     nil,
-		IpAddress:		  nil,
-		UserId:			  "12345",	
-		CompanyId: 		  &companyId,
-		UserAgentString:  nil,
-		Metadata:		  &metadata,
-		Campaign:		  &campaign,
+		ModifiedTime:    &modifiedTime,
+		SessionToken:    nil,
+		IpAddress:       nil,
+		UserId:          "12345",
+		CompanyId:       &companyId,
+		UserAgentString: nil,
+		Metadata:        &metadata,
+		Campaign:        &campaign,
 	}
 	return user
 }
 
 func genCompany(companyId string) models.CompanyModel {
-	
+
 	modifiedTime := time.Now().UTC()
 
 	metadata := map[string]interface{}{
 		"email": "johndoe@acmeinc.com",
-		"Key1": "metadata",
-		"Key2": 42,
+		"Key1":  "metadata",
+		"Key2":  42,
 		"Key3": map[string]interface{}{
 			"Key3_1": "SomeValue",
 		},
@@ -441,19 +447,19 @@ func genCompany(companyId string) models.CompanyModel {
 	utmSource := "Adwords"
 	utmMedium := "Twitter"
 
-	campaign := models.CampaignModel {
+	campaign := models.CampaignModel{
 		UtmSource: &utmSource,
-		UtmMedium: &utmMedium, 
+		UtmMedium: &utmMedium,
 	}
-	
+
 	company := models.CompanyModel{
-		ModifiedTime: 	  &modifiedTime,
-		SessionToken:     nil,
-		IpAddress:		  nil,
-		CompanyId:		  companyId,	
-		CompanyDomain:    nil,
-		Metadata:		  &metadata,
-		Campaign:		  &campaign,
+		ModifiedTime:  &modifiedTime,
+		SessionToken:  nil,
+		IpAddress:     nil,
+		CompanyId:     companyId,
+		CompanyDomain: nil,
+		Metadata:      &metadata,
+		Campaign:      &campaign,
 	}
 	return company
 }
