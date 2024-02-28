@@ -438,18 +438,6 @@ apiClient.QueueCompanies(&companies)
 err := apiClient.UpdateCompaniesBatch(&companies)
 ```
 
-matthewtanner91: how would I run the api_test.go file?
-
-GitHub Copilot: You can run the `api_test.go` file using the `go test` command in the terminal. Here's how you can do it:
-
-```bash
-go test -v ./path_to_your_file/api_test.go
-```
-
-Replace `path_to_your_file` with the actual path to your `api_test.go` file. The `-v` flag is for verbose output, meaning it will print detailed information about each test that is run.
-
-matthewtanner91: based on the Subscriptions code we added and using this as an example, create the sections for updating a subscription and updating subscreiptions in batch:
-
 ## Update a Single Company
 
 Create or update a company profile in Moesif.
