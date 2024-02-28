@@ -622,7 +622,7 @@ err := apiClient.UpdateSubscription(&subscription)
 ## Update Subscriptions in Batch
 
 Similar to updateSubscription, but used to update a list of subscriptions in one batch. 
-Only the `SubscriptionId` field is required.
+Only the `SubscriptionId` and `CompanyId` fields are required.
 For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-subscriptions-in-batch).
 
 ```go
