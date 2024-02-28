@@ -57,6 +57,20 @@ type API interface {
 	QueueCompanies([]*models.CompanyModel) error
 
 	/**
+	 * Queue Single Subscription to be added
+	 * @param    *models.SubscriptionModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	QueueSubscription(*models.SubscriptionModel) error
+
+	/**
+	 * Queue multiple Subscriptions to be added
+	 * @param    []*models.SubscriptionModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	QueueSubscriptions([]*models.SubscriptionModel) error
+
+	/**
 	 * Add Single API Event Call
 	 * @param    *models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
@@ -104,6 +118,20 @@ type API interface {
 	 * @return	Returns the  response from the API call
 	 */
 	UpdateCompaniesBatch([]*models.CompanyModel) error
+
+	/**
+	 * Update a Single Subscription
+	 * @param    *models.SubscriptionModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	UpdateSubscription(*models.SubscriptionModel) error
+
+	/**
+	 * Update multiple Subscriptions in a single batch (batch size must be less than 250kb)
+	 * @param    []*models.SubscriptionModel        body     parameter: Required
+	 * @return	Returns the  response from the API call
+	 */
+	UpdateSubscriptionsBatch([]*models.SubscriptionModel) error
 
 	// GetGovernanceRules gets the collector's /v1/rules endpoint which contains
 	// regex governance rules and user/company governance rule templates which are

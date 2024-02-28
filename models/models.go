@@ -24,15 +24,15 @@ type EventRequestModel struct {
  * Structure for the custom type EventModel
  */
 type EventModel struct {
-	Request      EventRequestModel  `json:"request" form:"request"`                                 //API request object
-	Response     EventResponseModel `json:"response,omitempty" form:"response,omitempty"`           //API response Object
-	SessionToken *string            `json:"session_token,omitempty" form:"session_token,omitempty"` //End user's auth/session token
-	Tags         *string            `json:"tags,omitempty" form:"tags,omitempty"`                   //comma separated list of tags, see documentation
-	UserId       *string            `json:"user_id,omitempty" form:"user_id,omitempty"`             //End user's user_id string from your app
-	CompanyId    *string            `json:"company_id,omitempty" form:"company_id,omitempty"`       //company_id string
-	Metadata     interface{}        `json:"metadata,omitempty" form:"metadata,omitempty"`           //User Metadata
-	Direction    *string            `json:"direction,omitempty" form:"direction,omitempty"`         // Direction of an API call
-	Weight       *int               `json:"weight,omitempty" form:"weight,omitempty"`               // Weight of an API call
+	Request      	EventRequestModel  `json:"request" form:"request"`                                 		//API request object
+	Response     	EventResponseModel `json:"response,omitempty" form:"response,omitempty"`           		//API response Object
+	SessionToken 	*string            `json:"session_token,omitempty" form:"session_token,omitempty"` 		//End user's auth/session token
+	Tags         	*string            `json:"tags,omitempty" form:"tags,omitempty"`                   		//comma separated list of tags, see documentation
+	UserId       	*string            `json:"user_id,omitempty" form:"user_id,omitempty"`             		//End user's user_id string from your app
+	CompanyId    	*string            `json:"company_id,omitempty" form:"company_id,omitempty"`       		//company_id string
+	Metadata     	interface{}        `json:"metadata,omitempty" form:"metadata,omitempty"`           		//User Metadata
+	Direction    	*string            `json:"direction,omitempty" form:"direction,omitempty"`         		// Direction of an API call
+	Weight       	*int               `json:"weight,omitempty" form:"weight,omitempty"`               		// Weight of an API call
 }
 
 /*
@@ -95,4 +95,16 @@ type CompanyModel struct {
 	CompanyDomain *string        `json:"company_domain,omitempty" form:"company_domain,omitempty"` //Company Domain string
 	Metadata      interface{}    `json:"metadata,omitempty" form:"metadata,omitempty"`             //User Metadata
 	Campaign      *CampaignModel `json:"campaign,omitempty" form:"campaign,omitempty"`             //The Campaign Object
+}
+
+/*
+ * Structure for the custom type SubscriptionModel
+ */
+type SubscriptionModel struct {
+	SubscriptionId      string     `json:"subscription_id" form:"subscription_id"`           //Subscription Id
+	CompanyId           string     `json:"company_id" form:"company_id"`                     //Company Id
+	CurrentPeriodStart *time.Time  `json:"current_period_start" form:"current_period_start"` //Current Period Start
+	CurrentPeriodEnd   *time.Time  `json:"current_period_end" form:"current_period_end"`     //Current Period End
+	Status             *string     `json:"status,omitempty" form:"status,omitempty"`         //Status
+	Metadata           interface{} `json:"metadata,omitempty" form:"metadata,omitempty"`     //Subscription Metadata
 }

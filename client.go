@@ -28,6 +28,7 @@ type Client struct {
 	ch                   chan []*models.EventModel
 	chUser               chan []*models.UserModel
 	chCompany            chan []*models.CompanyModel
+	chSubscription       chan []*models.SubscriptionModel
 	flush                chan chan struct{}
 	interval             time.Duration
 	timeout              time.Duration
@@ -43,6 +44,7 @@ func NewClient() *Client {
 		ch:                   make(chan []*models.EventModel, Config.EventQueueSize),
 		chUser:               make(chan []*models.UserModel, Config.EventQueueSize),
 		chCompany:            make(chan []*models.CompanyModel, Config.EventQueueSize),
+		chSubscription:       make(chan []*models.SubscriptionModel, Config.EventQueueSize),
 		flush:                make(chan chan struct{}),
 		interval:             time.Second * time.Duration(Config.TimerWakeupSeconds),
 		timeout:              time.Second * 10,
@@ -143,6 +145,38 @@ func (c *Client) QueueCompanies(u []*models.CompanyModel) error {
 		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
 	}
 }
+
+/**
+ * Queue Single Subscription to be added
+ * @param    *models.SubscriptionModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+
+func (c *Client) QueueSubscription(u *models.SubscriptionModel) error {
+	subscriptions := make([]*models.SubscriptionModel, 1)
+	subscriptions[0] = u
+	select {
+	case c.chSubscription <- subscriptions:
+		return nil
+	default:
+		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
+	}
+}
+
+/**
+ * Queue multiple Subscriptions to be added
+ * @param    []*models.SubscriptionModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+
+func (c *Client) QueueSubscriptions(u []*models.SubscriptionModel) error {
+	select {
+	case c.chSubscription <- u:
+		return nil
+	default:
+		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
+	}
+}	
 
 /**
 * Log data to Moesif
@@ -318,6 +352,40 @@ func (c *Client) UpdateCompaniesBatch(companies []*models.CompanyModel) error {
 	return err
 }
 
+/**
+ * Update a Single Subscription
+ * @param    *models.SubscriptionModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+func (c *Client) UpdateSubscription(subscription *models.SubscriptionModel) error {
+	body, err := json.Marshal(&subscription)
+	if err != nil {
+		return err
+	}
+
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/subscriptions")
+
+	return err
+}
+
+/**
+ * Update multiple Subscriptions in a single batch (batch size must be less than 250kb)
+ * @param    []*models.SubscriptionModel        body     parameter: Required
+ * @return	Returns the  response from the API call
+ */
+func (c *Client) UpdateSubscriptionsBatch(subscriptions []*models.SubscriptionModel) error {
+	body, err := json.Marshal(&subscriptions)
+	if err != nil {
+		return err
+	}
+
+	// Send data to Moesif async
+	go c.SendDataToMoesif(body, "/v1/subscriptions/batch")
+
+	return err
+}
+
 func (c *Client) Flush() {
 	ch := make(chan struct{})
 	defer close(ch)
@@ -328,6 +396,9 @@ func (c *Client) Flush() {
 	chCompany := make(chan struct{})
 	defer close(chCompany)
 
+	chSubscription := make(chan struct{})
+	defer close(chSubscription)
+
 	c.flush <- ch
 	<-ch
 
@@ -336,6 +407,9 @@ func (c *Client) Flush() {
 
 	c.flush <- chCompany
 	<-chCompany
+
+	c.flush <- chSubscription
+	<-chSubscription
 }
 
 func (c *Client) Close() {
@@ -350,9 +424,11 @@ func (c *Client) start() {
 	buffer := make([]*models.EventModel, bufferSize)
 	bufferUser := make([]*models.UserModel, bufferSize)
 	bufferCompany := make([]*models.CompanyModel, bufferSize)
+	bufferSubscription := make([]*models.SubscriptionModel, bufferSize)
 	index := 0
 	indexUser := 0
 	indexCompany := 0
+	indexSubscription := 0
 
 	for {
 		timer.Reset(c.interval)
@@ -383,6 +459,14 @@ func (c *Client) start() {
 					bufferCompany[i] = nil
 				}
 				indexCompany = 0
+			}
+
+			if indexSubscription > 0 {
+				c.UpdateSubscriptionsBatch(bufferSubscription[0:indexSubscription])
+				for i := 0; i < indexSubscription; i++ {
+					bufferSubscription[i] = nil
+				}
+				indexSubscription = 0
 			}
 
 		case v := <-c.ch:
@@ -426,6 +510,20 @@ func (c *Client) start() {
 					indexCompany = 0
 				}
 			}
+		
+		case v := <-c.chSubscription:
+			for _, subscription := range v {
+				bufferSubscription[indexSubscription] = subscription
+				indexSubscription += 1
+
+				if indexSubscription >= bufferSize {
+					c.UpdateSubscriptionsBatch(bufferSubscription[0:indexSubscription])
+					for i := 0; i < indexSubscription; i++ {
+						bufferSubscription[i] = nil
+					}
+					indexSubscription = 0
+				}
+			}
 
 		case v := <-c.flush:
 			if index > 0 {
@@ -449,6 +547,15 @@ func (c *Client) start() {
 				}
 				indexCompany = 0
 			}
+
+			if indexSubscription > 0 {
+				c.UpdateSubscriptionsBatch(bufferSubscription[0:indexSubscription])
+				for i := 0; i < indexSubscription; i++ {
+					bufferSubscription[i] = nil
+				}
+				indexSubscription = 0
+			}
+
 			v <- struct{}{}
 		}
 	}
