@@ -195,6 +195,75 @@ func TestQueueUsers(t *testing.T) {
 	}
 }
 
+func TestUpdateSubscription(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	subscription := genSubscription()
+
+	fmt.Printf("Subscription.\n%#v", subscription)
+
+	result := apiClient.UpdateSubscription(&subscription)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestUpdateSubscriptionsBatch(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	subscriptions := make([]*models.SubscriptionModel, 2)
+	for i := 0; i < 2; i++ {
+		s := genSubscription()
+		subscriptions[i] = &s
+	}
+
+	fmt.Printf("Subscriptions.\n%#v", subscriptions)
+
+	result := apiClient.UpdateSubscriptionsBatch(subscriptions)
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueSubscription(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	subscription := genSubscription()
+
+	fmt.Printf("Subscription.\n%#v", subscription)
+
+	result := apiClient.QueueSubscription(&subscription)
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
+func TestQueueSubscriptions(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	subscriptions := make([]*models.SubscriptionModel, 2)
+	for i := 0; i < 2; i++ {
+		s := genSubscription()
+		subscriptions[i] = &s
+	}
+
+	result := apiClient.QueueSubscriptions(subscriptions)
+
+	apiClient.Close()
+
+	if result != nil {
+		t.Fail()
+	}
+}
+
 func TestGetAppConfig(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
@@ -462,4 +531,30 @@ func genCompany(companyId string) models.CompanyModel {
 		Campaign:      &campaign,
 	}
 	return company
+}
+
+func genSubscription() models.SubscriptionModel {
+	subscriptionId := "sub_12345"
+	companyId := "67890"
+	currentPeriodStart := time.Now().UTC()
+	currentPeriodEnd := time.Now().UTC().Add(time.Duration(1) * time.Hour)
+	status := "Active"
+	metadata := map[string]interface{}{
+		"someValue": "value",
+		"Key1":  "metadata",
+		"Key2":  42,
+		"Key3": map[string]interface{}{
+			"Key3_1": "SomeValue",
+		},
+	}
+
+	subscription := models.SubscriptionModel{
+		SubscriptionId:      subscriptionId,
+		CompanyId:           companyId,
+		CurrentPeriodStart: &currentPeriodStart,
+		CurrentPeriodEnd:   &currentPeriodEnd,
+		Status:             &status,
+		Metadata:           &metadata,
+	}
+	return subscription
 }

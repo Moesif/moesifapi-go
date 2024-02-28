@@ -438,6 +438,234 @@ apiClient.QueueCompanies(&companies)
 err := apiClient.UpdateCompaniesBatch(&companies)
 ```
 
+matthewtanner91: how would I run the api_test.go file?
+
+GitHub Copilot: You can run the `api_test.go` file using the `go test` command in the terminal. Here's how you can do it:
+
+```bash
+go test -v ./path_to_your_file/api_test.go
+```
+
+Replace `path_to_your_file` with the actual path to your `api_test.go` file. The `-v` flag is for verbose output, meaning it will print detailed information about each test that is run.
+
+matthewtanner91: based on the Subscriptions code we added and using this as an example, create the sections for updating a subscription and updating subscreiptions in batch:
+
+## Update a Single Company
+
+Create or update a company profile in Moesif.
+The metadata field can be any company demographic or other info you want to store.
+Only the `CompanyId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-a-company).
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+
+func literalFieldValue(value string) *string {
+    return &value
+}
+
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#update-a-company for campaign schema
+campaign := models.CampaignModel {
+  UtmSource: literalFieldValue("google"),
+  UtmMedium: literalFieldValue("cpc"), 
+  UtmCampaign: literalFieldValue("adwords"),
+  UtmTerm: literalFieldValue("api+tooling"),
+  UtmContent: literalFieldValue("landing"),
+}
+
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "org_name": "Acme, Inc",
+  "plan_name": "Free",
+  "deal_stage": "Lead",
+  "mrr": 24000,
+  "demographics": map[string]interface{}{
+      "alexa_ranking": 500000,
+      "employee_count": 47,
+  },
+}
+
+// Prepare company model
+company := models.CompanyModel{
+    CompanyId:        "67890",  // The only required field is your company id
+    CompanyDomain:    literalFieldValue("acmeinc.com"), // If domain is set, Moesif will enrich your profiles with publicly available info 
+    Campaign:         &campaign,
+    Metadata:         &metadata,
+}
+
+// Queue the company asynchronously
+apiClient.QueueCompany(&company)
+
+// Update the company synchronously
+err := apiClient.UpdateCompany(&company)
+```
+
+## Update Companies in Batch
+
+Similar to updateCompany, but used to update a list of companies in one batch. 
+Only the `CompanyId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-companies-in-batch).
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+
+func literalFieldValue(value string) *string {
+    return &value
+}
+
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+// List of Companies
+var companies []*models.CompanyModel
+
+// Campaign object is optional, but useful if you want to track ROI of acquisition channels
+// See https://www.moesif.com/docs/api#update-a-company for campaign schema
+campaign := models.CampaignModel {
+  UtmSource: literalFieldValue("google"),
+  UtmMedium: literalFieldValue("cpc"), 
+  UtmCampaign: literalFieldValue("adwords"),
+  UtmTerm: literalFieldValue("api+tooling"),
+  UtmContent: literalFieldValue("landing"),
+}
+
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "org_name": "Acme, Inc",
+  "plan_name": "Free",
+  "deal_stage": "Lead",
+  "mrr": 24000,
+  "demographics": map[string]interface{}{
+      "alexa_ranking": 500000,
+      "employee_count": 47,
+  },
+}
+
+// Prepare company model
+companyA := models.CompanyModel{
+    CompanyId:        "67890",  // The only required field is your company id
+    CompanyDomain:    literalFieldValue("acmeinc.com"), // If domain is set, Moesif will enrich your profiles with publicly available info 
+    Campaign:         &campaign,
+    Metadata:         &metadata,
+}
+
+companies = append(companies, &companyA)
+
+// Queue the company asynchronously
+apiClient.QueueCompanies(&companies)
+
+// Update the company synchronously
+err := apiClient.UpdateCompaniesBatch(&companies)
+```
+
+## Update a Single Subscription
+
+Create or update a subscription profile in Moesif.
+The metadata field can be any subscription demographic or other info you want to store.
+Only the `SubscriptionId` and `CompanyId` fields are required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-a-subscription).
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+
+func literalFieldValue(value string) *string {
+    return &value
+}
+
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "plan_name": "Pro",
+  "deal_stage": "Customer",
+  "mrr": 48000,
+  "demographics": map[string]interface{}{
+      "alexa_ranking": 250000,
+      "employee_count": 95,
+  },
+}
+
+// Prepare subscription model
+subscription := models.SubscriptionModel{
+    SubscriptionId:    "12345",  // Required field subscription id
+    CompanyId:         literalFieldValue("67890"), // Required field company id
+    Metadata:          &metadata,
+}
+
+// Queue the subscription asynchronously
+apiClient.QueueSubscription(&subscription)
+
+// Update the subscription synchronously
+err := apiClient.UpdateSubscription(&subscription)
+```
+
+## Update Subscriptions in Batch
+
+Similar to updateSubscription, but used to update a list of subscriptions in one batch. 
+Only the `SubscriptionId` field is required.
+For details, visit the [Go API Reference](https://www.moesif.com/docs/api?go#update-subscriptions-in-batch).
+
+```go
+import "github.com/moesif/moesifapi-go"
+import "github.com/moesif/moesifapi-go/models"
+
+func literalFieldValue(value string) *string {
+    return &value
+}
+
+var apiEndpoint string
+var batchSize int
+var eventQueueSize int 
+var timerWakeupSeconds int
+
+apiClient := moesifapi.NewAPI("YOUR_COLLECTOR_APPLICATION_ID", &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+// List of Subscriptions
+var subscriptions []*models.SubscriptionModel
+
+// metadata can be any custom dictionary
+metadata := map[string]interface{}{
+  "plan_name": "Pro",
+  "deal_stage": "Customer",
+  "mrr": 48000,
+}
+
+// Prepare subscription model
+subscriptionA := models.SubscriptionModel{
+    SubscriptionId:    "12345",  // The only required field is your subscription id
+    CompanyId:         literalFieldValue("67890"), // Link the subscription to a company
+    Metadata:          &metadata,
+}
+
+subscriptions = append(subscriptions, &subscriptionA)
+
+// Queue the subscription asynchronously
+apiClient.QueueSubscriptions(&subscriptions)
+
+// Update the subscription synchronously
+err := apiClient.UpdateSubscriptionsBatch(&subscriptions)
+```
+
 ### Health Check
 
 ```bash
