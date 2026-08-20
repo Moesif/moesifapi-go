@@ -24,15 +24,50 @@ type EventRequestModel struct {
  * Structure for the custom type EventModel
  */
 type EventModel struct {
-	Request      	EventRequestModel  `json:"request" form:"request"`                                 		//API request object
-	Response     	EventResponseModel `json:"response,omitempty" form:"response,omitempty"`           		//API response Object
-	SessionToken 	*string            `json:"session_token,omitempty" form:"session_token,omitempty"` 		//End user's auth/session token
-	Tags         	*string            `json:"tags,omitempty" form:"tags,omitempty"`                   		//comma separated list of tags, see documentation
-	UserId       	*string            `json:"user_id,omitempty" form:"user_id,omitempty"`             		//End user's user_id string from your app
-	CompanyId    	*string            `json:"company_id,omitempty" form:"company_id,omitempty"`       		//company_id string
-	Metadata     	interface{}        `json:"metadata,omitempty" form:"metadata,omitempty"`           		//User Metadata
-	Direction    	*string            `json:"direction,omitempty" form:"direction,omitempty"`         		// Direction of an API call
-	Weight       	*int               `json:"weight,omitempty" form:"weight,omitempty"`               		// Weight of an API call
+	Request      EventRequestModel  `json:"request" form:"request"`                                 //API request object
+	Response     EventResponseModel `json:"response,omitempty" form:"response,omitempty"`           //API response Object
+	SessionToken *string            `json:"session_token,omitempty" form:"session_token,omitempty"` //End user's auth/session token
+	Tags         *string            `json:"tags,omitempty" form:"tags,omitempty"`                   //comma separated list of tags, see documentation
+	UserId       *string            `json:"user_id,omitempty" form:"user_id,omitempty"`             //End user's user_id string from your app
+	CompanyId    *string            `json:"company_id,omitempty" form:"company_id,omitempty"`       //company_id string
+	Metadata     interface{}        `json:"metadata,omitempty" form:"metadata,omitempty"`           //User Metadata
+	Direction    *string            `json:"direction,omitempty" form:"direction,omitempty"`         // Direction of an API call
+	Weight       *int               `json:"weight,omitempty" form:"weight,omitempty"`               // Weight of an API call
+	AiContext    *AiContextModel    `json:"ai_context,omitempty" form:"ai_context,omitempty"`       // AI context for the API call
+}
+
+// AiContextModel /*
+type AiContextModel struct {
+	Provider     *string                `json:"provider,omitempty" form:"provider,omitempty"`           //AI provider such as openai
+	Model        *string                `json:"model,omitempty" form:"model,omitempty"`                 //Model name
+	ModelType    *string                `json:"model_type,omitempty" form:"model_type,omitempty"`       //Model type such as chat
+	Usage        *AiUsageModel          `json:"usage,omitempty" form:"usage,omitempty"`                 //Token usage details
+	Attribution  map[string]interface{} `json:"attribution,omitempty" form:"attribution,omitempty"`     //Attribution details (dynamic key-value pairs)
+	CostMetrics  *AiCostMetricsModel    `json:"cost_metrics,omitempty" form:"cost_metrics,omitempty"`   //Cost metrics
+	FinishReason *string                `json:"finish_reason,omitempty" form:"finish_reason,omitempty"` //Finish reason
+}
+
+// AiUsageModel /*
+type AiUsageModel struct {
+	PromptTokens             *int `json:"prompt_tokens,omitempty" form:"prompt_tokens,omitempty"`                             //Prompt tokens
+	CompletionTokens         *int `json:"completion_tokens,omitempty" form:"completion_tokens,omitempty"`                     //Completion tokens
+	TotalTokens              *int `json:"total_tokens,omitempty" form:"total_tokens,omitempty"`                               //Total tokens
+	CachedTokens             *int `json:"cached_tokens,omitempty" form:"cached_tokens,omitempty"`                             //Cached tokens
+	ReasoningTokens          *int `json:"reasoning_tokens,omitempty" form:"reasoning_tokens,omitempty"`                       //Reasoning tokens
+	CacheReadInputTokens     *int `json:"cache_read_input_tokens,omitempty" form:"cache_read_input_tokens,omitempty"`         //Cache read input tokens
+	CacheCreationInputTokens *int `json:"cache_creation_input_tokens,omitempty" form:"cache_creation_input_tokens,omitempty"` //Cache creation input tokens
+}
+
+// AiCostMetricsModel /*
+type AiCostMetricsModel struct {
+	TotalInputCost    *float64 `json:"total_input_cost,omitempty" form:"total_input_cost,omitempty"`       //Total input cost
+	CachedInputCost   *float64 `json:"cached_input_cost,omitempty" form:"cached_input_cost,omitempty"`     //Cached input cost
+	CachedReadCost    *float64 `json:"cached_read_cost,omitempty" form:"cached_read_cost,omitempty"`       //Cached read cost
+	CacheCreationCost *float64 `json:"cache_creation_cost,omitempty" form:"cache_creation_cost,omitempty"` //Cache creation cost
+	ReasoningCost     *float64 `json:"reasoning_cost,omitempty" form:"reasoning_cost,omitempty"`           //Reasoning cost
+	OutputCost        *float64 `json:"output_cost,omitempty" form:"output_cost,omitempty"`                 //Output cost
+	TotalCost         *float64 `json:"total_cost,omitempty" form:"total_cost,omitempty"`                   //Total cost
+	PriceVersion      *string  `json:"price_version,omitempty" form:"price_version,omitempty"`             //Price version
 }
 
 /*
@@ -101,8 +136,8 @@ type CompanyModel struct {
  * Structure for the custom type SubscriptionModel
  */
 type SubscriptionModel struct {
-	SubscriptionId      string     `json:"subscription_id" form:"subscription_id"`           //Subscription Id
-	CompanyId           string     `json:"company_id" form:"company_id"`                     //Company Id
+	SubscriptionId     string      `json:"subscription_id" form:"subscription_id"`           //Subscription Id
+	CompanyId          string      `json:"company_id" form:"company_id"`                     //Company Id
 	CurrentPeriodStart *time.Time  `json:"current_period_start" form:"current_period_start"` //Current Period Start
 	CurrentPeriodEnd   *time.Time  `json:"current_period_end" form:"current_period_end"`     //Current Period End
 	Status             *string     `json:"status,omitempty" form:"status,omitempty"`         //Status
