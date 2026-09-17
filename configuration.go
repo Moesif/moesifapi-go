@@ -4,7 +4,7 @@
 package moesifapi
 
 /** Version of this lib */
-const Version string = "1.0.6"
+const Version string = "1.0.7"
 
 type config struct {
 	EventQueueSize int

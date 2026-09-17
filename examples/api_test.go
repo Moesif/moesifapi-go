@@ -68,6 +68,66 @@ func TestCreateEventWithAiContext(t *testing.T) {
 	}
 }
 
+func TestCreateEventWithA2a(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	event := genEvent()
+
+	operation := "SendMessage"
+	transport := "JSONRPC"
+	protocolVersion := "1.0"
+	requestType := "operation"
+	messageId := "m-001"
+	taskId := "t-a1b2c3"
+	contextId := "c-xyz-1"
+	inputPartCount := 1
+	returnImmediately := false
+	payloadType := "task"
+	taskState := "TASK_STATE_COMPLETED"
+	isError := false
+	isStreaming := false
+	terminal := true
+	outcome := "SUCCESS"
+
+	a2a := models.A2aModel{
+		Operation:       &operation,
+		Transport:       &transport,
+		ProtocolVersion: &protocolVersion,
+		RequestType:     &requestType,
+		Request: &models.A2aRequestModel{
+			MessageId:         &messageId,
+			TaskId:            &taskId,
+			ContextId:         &contextId,
+			InputPartCount:    &inputPartCount,
+			ReturnImmediately: &returnImmediately,
+		},
+		Response: &models.A2aResponseModel{
+			IsError:     &isError,
+			IsStreaming: &isStreaming,
+			PayloadType: &payloadType,
+			TaskId:      &taskId,
+			ContextId:   &contextId,
+			TaskState:   &taskState,
+		},
+		Terminal: &terminal,
+		Outcome:  &outcome,
+	}
+	event.A2a = &a2a
+
+	fmt.Printf("Event.\n%#v\n", event)
+
+	statusCode, _, err := apiClient.CreateEventSync(&event)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if statusCode != 201 {
+		t.Errorf("Expected status code 201, got %d", statusCode)
+	}
+}
+
 func TestCreateEvent(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
