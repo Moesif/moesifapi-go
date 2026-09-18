@@ -81,6 +81,7 @@ func TestCreateEventWithA2a(t *testing.T) {
 	contextId := "c-xyz-1"
 	inputPartCount := 1
 	returnImmediately := false
+	historyLength := 10
 	payloadType := "task"
 	taskState := "TASK_STATE_COMPLETED"
 	isError := false
@@ -99,6 +100,7 @@ func TestCreateEventWithA2a(t *testing.T) {
 			ContextId:         &contextId,
 			InputPartCount:    &inputPartCount,
 			ReturnImmediately: &returnImmediately,
+			HistoryLength:     &historyLength,
 		},
 		Response: &models.A2aResponseModel{
 			IsError:     &isError,
@@ -110,6 +112,134 @@ func TestCreateEventWithA2a(t *testing.T) {
 		},
 		Terminal: &terminal,
 		Outcome:  &outcome,
+	}
+	event.A2a = &a2a
+
+	fmt.Printf("Event.\n%#v\n", event)
+
+	statusCode, _, err := apiClient.CreateEventSync(&event)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if statusCode != 201 {
+		t.Errorf("Expected status code 201, got %d", statusCode)
+	}
+}
+
+// TestCreateEventWithA2aStreaming covers the streaming code path
+func TestCreateEventWithA2aStreaming(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	event := genEvent()
+
+	operation := "SendStreamingMessage"
+	transport := "JSONRPC"
+	protocolVersion := "1.0"
+	requestType := "operation"
+	messageId := "m-stream-001"
+	taskId := "t-stream-001"
+	contextId := "c-stream-001"
+	inputPartCount := 1
+	returnImmediately := false
+	payloadType := "status_update"
+	taskState := "TASK_STATE_COMPLETED"
+	isError := false
+	isStreaming := true
+	timeToFirstEventMs := int64(180)
+	streamDurationMs := int64(4210)
+	terminal := true
+	outcome := "SUCCESS"
+
+	a2a := models.A2aModel{
+		Operation:       &operation,
+		Transport:       &transport,
+		ProtocolVersion: &protocolVersion,
+		RequestType:     &requestType,
+		Request: &models.A2aRequestModel{
+			MessageId:         &messageId,
+			TaskId:            &taskId,
+			ContextId:         &contextId,
+			InputPartCount:    &inputPartCount,
+			ReturnImmediately: &returnImmediately,
+		},
+		Response: &models.A2aResponseModel{
+			IsError:            &isError,
+			IsStreaming:        &isStreaming,
+			TimeToFirstEventMs: &timeToFirstEventMs,
+			StreamDurationMs:   &streamDurationMs,
+			PayloadType:        &payloadType,
+			TaskId:             &taskId,
+			ContextId:          &contextId,
+			TaskState:          &taskState,
+		},
+		Terminal: &terminal,
+		Outcome:  &outcome,
+	}
+	event.A2a = &a2a
+
+	fmt.Printf("Event.\n%#v\n", event)
+
+	statusCode, _, err := apiClient.CreateEventSync(&event)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if statusCode != 201 {
+		t.Errorf("Expected status code 201, got %d", statusCode)
+	}
+}
+
+// TestCreateEventWithA2aFailure covers the failure code path
+func TestCreateEventWithA2aFailure(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	event := genEvent()
+
+	operation := "GetTask"
+	transport := "JSONRPC"
+	protocolVersion := "1.0"
+	requestType := "operation"
+	messageId := "m-fail-001"
+	taskId := "t-fail-001"
+	contextId := "c-fail-001"
+	inputPartCount := 1
+	payloadType := "error"
+	taskState := "TASK_STATE_FAILED"
+	isError := true
+	errorCode := -32001 // A2A TaskNotFoundError per JSON-RPC 2.0
+	isStreaming := false
+	terminal := false
+	outcome := "FAILURE"
+	failureOrigin := "UPSTREAM"
+
+	a2a := models.A2aModel{
+		Operation:       &operation,
+		Transport:       &transport,
+		ProtocolVersion: &protocolVersion,
+		RequestType:     &requestType,
+		Request: &models.A2aRequestModel{
+			MessageId:      &messageId,
+			TaskId:         &taskId,
+			ContextId:      &contextId,
+			InputPartCount: &inputPartCount,
+		},
+		Response: &models.A2aResponseModel{
+			IsError:     &isError,
+			ErrorCode:   &errorCode,
+			IsStreaming: &isStreaming,
+			PayloadType: &payloadType,
+			TaskId:      &taskId,
+			ContextId:   &contextId,
+			TaskState:   &taskState,
+		},
+		Terminal:      &terminal,
+		Outcome:       &outcome,
+		FailureOrigin: &failureOrigin,
 	}
 	event.A2a = &a2a
 
