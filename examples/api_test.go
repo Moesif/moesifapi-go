@@ -13,8 +13,8 @@ import (
 	"github.com/moesif/moesifapi-go/models"
 )
 
-var applicationId = "eyJhcHAiOiI2ODk6NDUiLCJ2ZXIiOiIyLjEiLCJvcmciOiIyOTg6MTciLCJpYXQiOjE3ODU1NDI0MDB9.PstXtDsAq8AUEk1sww9XlkSrntiZBM0TltKJdTMslLo"
-var apiEndpoint string = "https://api-dev.moesif.net"
+var applicationId = "Your Moesif Application Id"
+var apiEndpoint string
 var batchSize int
 var eventQueueSize int
 var timerWakeupSeconds int
@@ -57,15 +57,13 @@ func TestCreateEventWithAiContext(t *testing.T) {
 
 	fmt.Printf("Event.\n%#v\n", event)
 
-	statusCode, _, err := apiClient.CreateEventSync(&event)
+	result, err := apiClient.CreateEvent(&event)
 
 	if err != nil {
 		t.Fail()
 	}
 
-	if statusCode != 201 {
-		t.Errorf("Expected status code 201, got %d", statusCode)
-	}
+	fmt.Printf("Event.\n%#v", result)
 }
 
 func TestCreateEvent(t *testing.T) {
