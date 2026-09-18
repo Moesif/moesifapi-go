@@ -71,9 +71,7 @@ type AiCostMetricsModel struct {
 	PriceVersion      *string  `json:"price_version,omitempty" form:"price_version,omitempty"`             //Price version
 }
 
-// A2aModel is the top-level A2A analytics block for an event.
-// Values are validated server-side; enum values are matched case-insensitively
-// and unrecognized values coerce to fallback members (Unknown / UNKNOWN / unknown).
+// A2aModel
 type A2aModel struct {
 	Operation       *string           `json:"operation,omitempty" form:"operation,omitempty"`               //A2A operation (e.g. SendMessage, GetTask)
 	Transport       *string           `json:"transport,omitempty" form:"transport,omitempty"`               //Wire binding (JSONRPC, GRPC, HTTP+JSON)
@@ -86,7 +84,7 @@ type A2aModel struct {
 	FailureOrigin   *string           `json:"failure_origin,omitempty" form:"failure_origin,omitempty"`     //Layer responsible for a failure (CLIENT, POLICY, GATEWAY, UPSTREAM, UNKNOWN)
 }
 
-// A2aRequestModel is the a2a.request sub-block extracted from the A2A request payload.
+// A2aRequestModel
 type A2aRequestModel struct {
 	MessageId         *string `json:"message_id,omitempty" form:"message_id,omitempty"`                   //Opaque client-generated message id
 	TaskId            *string `json:"task_id,omitempty" form:"task_id,omitempty"`                         //Opaque task id
@@ -96,7 +94,7 @@ type A2aRequestModel struct {
 	HistoryLength     *int    `json:"history_length,omitempty" form:"history_length,omitempty"`           //From SendMessageConfiguration.history_length
 }
 
-// A2aResponseModel is the a2a.response sub-block extracted from the A2A response payload.
+// A2aResponseModel
 type A2aResponseModel struct {
 	IsError            *bool   `json:"is_error,omitempty" form:"is_error,omitempty"`                             //Whether the response carried an error
 	ErrorCode          *int    `json:"error_code,omitempty" form:"error_code,omitempty"`                         //JSON-RPC -32xxx, gRPC status 0-16, or HTTP status >= 400
