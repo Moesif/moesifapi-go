@@ -19,6 +19,53 @@ var batchSize int
 var eventQueueSize int
 var timerWakeupSeconds int
 
+func TestCreateEventWithAiContext(t *testing.T) {
+	appId := applicationId
+	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
+
+	event := genEvent()
+
+	provider := "openai"
+	model := "gpt-4o-2024-05-13"
+	modelType := "chat"
+	finishReason := "stop"
+	promptTokens := 1050
+	completionTokens := 420
+	totalTokens := 1470
+	cachedTokens := 512
+	reasoningTokens := 0
+
+	aiContext := models.AiContextModel{
+		Provider:  &provider,
+		Model:     &model,
+		ModelType: &modelType,
+		Usage: &models.AiUsageModel{
+			PromptTokens:     &promptTokens,
+			CompletionTokens: &completionTokens,
+			TotalTokens:      &totalTokens,
+			CachedTokens:     &cachedTokens,
+			ReasoningTokens:  &reasoningTokens,
+		},
+		Attribution: map[string]interface{}{
+			"feature_id": "smart_summary_v2",
+			"team_id":    "content_ops",
+			"session_id": "sess_987654321",
+		},
+		FinishReason: &finishReason,
+	}
+	event.AiContext = &aiContext
+
+	fmt.Printf("Event.\n%#v\n", event)
+
+	result, err := apiClient.CreateEvent(&event)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	fmt.Printf("Event.\n%#v", result)
+}
+
 func TestCreateEvent(t *testing.T) {
 	appId := applicationId
 	apiClient := moesifapi.NewAPI(appId, &apiEndpoint, eventQueueSize, batchSize, timerWakeupSeconds)
@@ -541,16 +588,16 @@ func genSubscription() models.SubscriptionModel {
 	status := "Active"
 	metadata := map[string]interface{}{
 		"someValue": "value",
-		"Key1":  "metadata",
-		"Key2":  42,
+		"Key1":      "metadata",
+		"Key2":      42,
 		"Key3": map[string]interface{}{
 			"Key3_1": "SomeValue",
 		},
 	}
 
 	subscription := models.SubscriptionModel{
-		SubscriptionId:      subscriptionId,
-		CompanyId:           companyId,
+		SubscriptionId:     subscriptionId,
+		CompanyId:          companyId,
 		CurrentPeriodStart: &currentPeriodStart,
 		CurrentPeriodEnd:   &currentPeriodEnd,
 		Status:             &status,

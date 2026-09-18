@@ -176,7 +176,7 @@ func (c *Client) QueueSubscriptions(u []*models.SubscriptionModel) error {
 	default:
 		return fmt.Errorf("Unable to send event, queue is full.  Use a larger queue size or create more workers.")
 	}
-}	
+}
 
 /**
 * Log data to Moesif
@@ -236,6 +236,60 @@ func (c *Client) CreateEvent(event *models.EventModel) (http.Header, error) {
 	go c.SendDataToMoesif(body, "/v1/events")
 
 	return nil, err
+}
+
+/**
+ * Add Single API Event Call (synchronous)
+ * @param    *models.EventModel        body     parameter: Required
+ * @return	Returns the HTTP status code, response headers, and error from the API call
+ */
+func (c *Client) CreateEventSync(event *models.EventModel) (int, http.Header, error) {
+	body, err := json.Marshal(&event)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	statusCode, header, err := c.SendDataToMoesifSync(body, "/v1/events")
+	return statusCode, header, err
+}
+
+/**
+ * Send data to Moesif synchronously and return the HTTP status code
+ */
+func (c *Client) SendDataToMoesifSync(body []byte, rawPath string) (int, http.Header, error) {
+	url := Config.BaseURI + rawPath
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	if _, err := gz.Write(body); err != nil {
+		return 0, nil, fmt.Errorf("unable to gzip body: %w", err)
+	}
+	if err := gz.Close(); err != nil {
+		return 0, nil, fmt.Errorf("unable to close gzip writer: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", url, &buf)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Moesif-Application-Id", Config.MoesifApplicationId)
+	req.Header.Set("User-Agent", "moesifapi-go/"+Version)
+	req.Header.Set("Content-Encoding", "gzip")
+
+	resp, err := ctxhttp.Do(ctx, http.DefaultClient, req)
+	if err != nil {
+		return 0, nil, fmt.Errorf("moesif API request error: path=%s error=%w", rawPath, err)
+	}
+	defer resp.Body.Close()
+	c.notify(resp.Header)
+
+	return resp.StatusCode, resp.Header, nil
 }
 
 /**
@@ -510,7 +564,7 @@ func (c *Client) start() {
 					indexCompany = 0
 				}
 			}
-		
+
 		case v := <-c.chSubscription:
 			for _, subscription := range v {
 				bufferSubscription[indexSubscription] = subscription

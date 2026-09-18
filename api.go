@@ -78,6 +78,13 @@ type API interface {
 	CreateEvent(*models.EventModel) (http.Header, error)
 
 	/**
+	 * Add Single API Event Call (synchronous, returns HTTP status code)
+	 * @param    *models.EventModel        body     parameter: Required
+	 * @return	Returns the HTTP status code, response headers, and error from the API call
+	 */
+	CreateEventSync(*models.EventModel) (int, http.Header, error)
+
+	/**
 	 * Add multiple API Events in a single batch (batch size must be less than 250kb)
 	 * @param    []*models.EventModel        body     parameter: Required
 	 * @return	Returns the  response from the API call
