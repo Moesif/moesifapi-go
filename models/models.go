@@ -34,6 +34,7 @@ type EventModel struct {
 	Direction    *string            `json:"direction,omitempty" form:"direction,omitempty"`         // Direction of an API call
 	Weight       *int               `json:"weight,omitempty" form:"weight,omitempty"`               // Weight of an API call
 	AiContext    *AiContextModel    `json:"ai_context,omitempty" form:"ai_context,omitempty"`       // AI context for the API call
+	A2a          *A2aModel          `json:"a2a,omitempty" form:"a2a,omitempty"`                     // A2A analytics for the API call
 }
 
 // AiContextModel /*
@@ -68,6 +69,42 @@ type AiCostMetricsModel struct {
 	OutputCost        *float64 `json:"output_cost,omitempty" form:"output_cost,omitempty"`                 //Output cost
 	TotalCost         *float64 `json:"total_cost,omitempty" form:"total_cost,omitempty"`                   //Total cost
 	PriceVersion      *string  `json:"price_version,omitempty" form:"price_version,omitempty"`             //Price version
+}
+
+// A2aModel
+type A2aModel struct {
+	Operation       *string           `json:"operation,omitempty" form:"operation,omitempty"`               //A2A operation (e.g. SendMessage, GetTask)
+	Transport       *string           `json:"transport,omitempty" form:"transport,omitempty"`               //Wire binding (JSONRPC, GRPC, HTTP+JSON)
+	RequestType     *string           `json:"request_type,omitempty" form:"request_type,omitempty"`         //Traffic classifier (operation, agentCard, preflight)
+	ProtocolVersion *string           `json:"protocol_version,omitempty" form:"protocol_version,omitempty"` //A2A protocol version (e.g. 1.0)
+	Request         *A2aRequestModel  `json:"request,omitempty" form:"request,omitempty"`                   //A2A request-side analytics
+	Response        *A2aResponseModel `json:"response,omitempty" form:"response,omitempty"`                 //A2A response-side analytics
+	Terminal        *bool             `json:"terminal,omitempty" form:"terminal,omitempty"`                 //True if the observed task state is terminal
+	Outcome         *string           `json:"outcome,omitempty" form:"outcome,omitempty"`                   //Derived outcome (SUCCESS, FAILURE, UNKNOWN)
+	FailureOrigin   *string           `json:"failure_origin,omitempty" form:"failure_origin,omitempty"`     //Layer responsible for a failure (CLIENT, POLICY, GATEWAY, UPSTREAM, UNKNOWN)
+}
+
+// A2aRequestModel
+type A2aRequestModel struct {
+	MessageId         *string `json:"message_id,omitempty" form:"message_id,omitempty"`                   //Opaque client-generated message id
+	TaskId            *string `json:"task_id,omitempty" form:"task_id,omitempty"`                         //Opaque task id
+	ContextId         *string `json:"context_id,omitempty" form:"context_id,omitempty"`                   //Opaque context id
+	InputPartCount    *int    `json:"input_part_count,omitempty" form:"input_part_count,omitempty"`       //Number of parts in the request message
+	ReturnImmediately *bool   `json:"return_immediately,omitempty" form:"return_immediately,omitempty"`   //From SendMessageConfiguration.return_immediately
+	HistoryLength     *int    `json:"history_length,omitempty" form:"history_length,omitempty"`           //From SendMessageConfiguration.history_length
+}
+
+// A2aResponseModel
+type A2aResponseModel struct {
+	IsError            *bool   `json:"is_error,omitempty" form:"is_error,omitempty"`                             //Whether the response carried an error
+	ErrorCode          *int    `json:"error_code,omitempty" form:"error_code,omitempty"`                         //JSON-RPC -32xxx, gRPC status 0-16, or HTTP status >= 400
+	IsStreaming        *bool   `json:"is_streaming,omitempty" form:"is_streaming,omitempty"`                     //Whether delivered via SSE / gRPC stream
+	TimeToFirstEventMs *int64  `json:"time_to_first_event_ms,omitempty" form:"time_to_first_event_ms,omitempty"` //Request start to first stream event, ms (streaming only)
+	StreamDurationMs   *int64  `json:"stream_duration_ms,omitempty" form:"stream_duration_ms,omitempty"`         //First frame to stream end, ms (streaming only)
+	PayloadType        *string `json:"payload_type,omitempty" form:"payload_type,omitempty"`                     //A2A proto response type (task, message, status_update, etc.)
+	TaskId             *string `json:"task_id,omitempty" form:"task_id,omitempty"`                               //Task id observed in the response
+	ContextId          *string `json:"context_id,omitempty" form:"context_id,omitempty"`                         //Context id observed in the response
+	TaskState          *string `json:"task_state,omitempty" form:"task_state,omitempty"`                         //Latest observed A2A TaskState enum value
 }
 
 /*
