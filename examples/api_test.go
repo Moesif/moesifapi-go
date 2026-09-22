@@ -76,6 +76,8 @@ func TestCreateEventWithA2a(t *testing.T) {
 	transport := "JSONRPC"
 	protocolVersion := "1.0"
 	requestType := "operation"
+	agentId := "agent-weather-42"
+	agentName := "Weather Bot v2"
 	messageId := "m-001"
 	taskId := "t-a1b2c3"
 	contextId := "c-xyz-1"
@@ -94,6 +96,8 @@ func TestCreateEventWithA2a(t *testing.T) {
 		Transport:       &transport,
 		ProtocolVersion: &protocolVersion,
 		RequestType:     &requestType,
+		AgentId:         &agentId,
+		AgentName:       &agentName,
 		Request: &models.A2aRequestModel{
 			MessageId:         &messageId,
 			TaskId:            &taskId,
@@ -139,6 +143,8 @@ func TestCreateEventWithA2aStreaming(t *testing.T) {
 	transport := "JSONRPC"
 	protocolVersion := "1.0"
 	requestType := "operation"
+	agentId := "agent-stream-001"
+	agentName := "Streaming Weather Agent"
 	messageId := "m-stream-001"
 	taskId := "t-stream-001"
 	contextId := "c-stream-001"
@@ -158,6 +164,8 @@ func TestCreateEventWithA2aStreaming(t *testing.T) {
 		Transport:       &transport,
 		ProtocolVersion: &protocolVersion,
 		RequestType:     &requestType,
+		AgentId:         &agentId,
+		AgentName:       &agentName,
 		Request: &models.A2aRequestModel{
 			MessageId:         &messageId,
 			TaskId:            &taskId,
@@ -204,6 +212,8 @@ func TestCreateEventWithA2aFailure(t *testing.T) {
 	transport := "JSONRPC"
 	protocolVersion := "1.0"
 	requestType := "operation"
+	agentId := "agent-billing-99"
+	agentName := "Billing Agent"
 	messageId := "m-fail-001"
 	taskId := "t-fail-001"
 	contextId := "c-fail-001"
@@ -222,6 +232,8 @@ func TestCreateEventWithA2aFailure(t *testing.T) {
 		Transport:       &transport,
 		ProtocolVersion: &protocolVersion,
 		RequestType:     &requestType,
+		AgentId:         &agentId,
+		AgentName:       &agentName,
 		Request: &models.A2aRequestModel{
 			MessageId:      &messageId,
 			TaskId:         &taskId,

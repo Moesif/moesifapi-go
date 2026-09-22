@@ -77,6 +77,8 @@ type A2aModel struct {
 	Transport       *string           `json:"transport,omitempty" form:"transport,omitempty"`               //Wire binding (JSONRPC, GRPC, HTTP+JSON)
 	RequestType     *string           `json:"request_type,omitempty" form:"request_type,omitempty"`         //Traffic classifier (operation, agentCard, preflight)
 	ProtocolVersion *string           `json:"protocol_version,omitempty" form:"protocol_version,omitempty"` //A2A protocol version (e.g. 1.0)
+	AgentId         *string           `json:"agent_id,omitempty" form:"agent_id,omitempty"`                 //Target/callee agent's id
+	AgentName       *string           `json:"agent_name,omitempty" form:"agent_name,omitempty"`             //Target agent's name
 	Request         *A2aRequestModel  `json:"request,omitempty" form:"request,omitempty"`                   //A2A request-side analytics
 	Response        *A2aResponseModel `json:"response,omitempty" form:"response,omitempty"`                 //A2A response-side analytics
 	Terminal        *bool             `json:"terminal,omitempty" form:"terminal,omitempty"`                 //True if the observed task state is terminal
